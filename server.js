@@ -13,12 +13,12 @@ const app = require("./app");
 const DATABASE_URL = process.env.DATABASE_URL.replace("<password>", process.env.DATABASE_PASSWORD);
 
 mongoose.connect(DATABASE_URL).then(() => {
-    console.log("DB connection successful!")
+    console.log("DB connection success!")
 });
 
 //Connect to Server
 const PORT = process.env.PORT || "8000";
 
 app.listen(PORT, () => {
-    console.log("Server connection success");
+    console.log("Server connection success!");
 });
