@@ -48,7 +48,11 @@ function createOrSendToken(user, statusCode, res) {
 
     const userData = {
         name: user.name,
-        email: user.email
+        email: user.email,
+        postCode: user.postCode,
+        address: user.address,
+        region: user.region,
+        phoneNumber: user.phoneNumber
     }
 
     res.status(statusCode).json({
@@ -62,4 +66,4 @@ function signToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN
     })
-}
+};
