@@ -5,8 +5,8 @@ module.exports = function(err, req, res, next) {
     if (req.originalUrl.startsWith("/api")) {
         res.status(err.statusCode).json({
             status: err.status,
-            error: err,
             message: err.message,
+            error: err,
             stack: err.stack
         })
     }

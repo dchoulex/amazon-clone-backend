@@ -1,7 +1,7 @@
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
-exports.getAll = function(Model, userId) {
+exports.getAll = function(Model) {
     return catchAsync(async function(req, res) {
         const documents = await Model.find({ user: req.user._id });
 
