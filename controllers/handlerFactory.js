@@ -1,15 +1,22 @@
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
-exports.getAll = function(Model) {
+exports.getAll = function(Model, userId) {
     return catchAsync(async function(req, res) {
-        const documents = await Model.find();
+        const documents = await Model.find({ user: req.user._id });
 
-        res.status(200).json({
-            message: "success",
-            results: documents.length,
-            data: documents
-        })
+        let jsonData = {
+            status: "success"
+        };
+
+        if (documents.length === 0) {
+            jsonData.message = "No data available yet.";
+        } else {
+            jsonData.results = documents.length;
+            jsonData.data = documents;
+        }
+
+        res.status(200).json(jsonData)
     })
 };
 
@@ -24,7 +31,7 @@ exports.getOne = function(Model, populateOptions) {
         if (!document) return next(new AppError(404, "No data found"))
 
         res.status(200).json({
-            message: "success",
+            status: "success",
             data: document
         });
     })
@@ -35,14 +42,14 @@ exports.createOne = function(Model) {
         const newDocument = await Model.create(req.body);
 
         res.status(200).json({
-            message: "success",
+            status: "success",
             data: newDocument
         });
     })
 };
 
 exports.deleteOne = function(Model) {
-    return catchAsync(async function(req, res) {
+    return catchAsync(async function(req, res, next) {
         const document = await Model.findByIdAndDelete(req.params.id);
 
         if (!document) return next(new AppError(404, "No data found"));
@@ -56,7 +63,6 @@ exports.deleteOne = function(Model) {
 
 exports.updateOne = function(Model) {
     return catchAsync(async function(req, res, next) {
-        
         const document = await Model.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true

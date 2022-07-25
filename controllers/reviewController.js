@@ -9,7 +9,7 @@ exports.deleteReview = factory.deleteOne(Review);
 exports.updateReview = factory.updateOne(Review);
 
 exports.createReview = catchAsync(async function(req, res, next) {
-    const userId = "62db5e475f873d5a205603b7";
+    const userId = req.user._id;
     const { productId } = req.params;
     const { review, rating } = req.body;
 
@@ -30,7 +30,7 @@ exports.createReview = catchAsync(async function(req, res, next) {
     const newReview = await Review.create(documentData);
 
     res.status(200).json({
-        message: "success",
+        status: "success",
         data: newReview
     });
 });
