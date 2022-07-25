@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const shippingCostSchema = new monngoose.Schema({
+const shippingCostSchema = new mongoose.Schema({
     region: {
         type: String,
         enum: {
@@ -8,7 +8,7 @@ const shippingCostSchema = new monngoose.Schema({
             message: "Please input valid region."
         }
     },
-    shippingCost: {
+    standardShippingCost: {
         type: Number,
         validate: {
             validator: function(shippingCost) {
@@ -17,7 +17,15 @@ const shippingCostSchema = new monngoose.Schema({
             message: "Shipping cost must be equal or more than 0."
         }
     },
-    isExpedited: Boolean
+    expeditedShippingCost: {
+        type: Number,
+        validate: {
+            validator: function(shippingCost) {
+                return shippingCost > 0
+            },
+            message: "Shipping cost must be equal or more than 0."
+        }    
+    }
 });
 
 const ShippingCost = mongoose.model("ShippingCost", shippingCostSchema);

@@ -12,29 +12,69 @@ mongoose.connect(DATABASE_URL).then(() => {
     console.log("DB connection success!")
 });
 
-const shippingCostData = []
+const shippingCostData = [
+    {
+        region: "Hokkaido",
+        standardShippingCost: 450,
+        expeditedShippingCost: 550
+    },
+    {
+        region: "Tohoku",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Kanto",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Chubu",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Kinki",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Chugoku",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Shikoku",
+        standardShippingCost: 410,
+        expeditedShippingCost: 510
+    },
+    {
+        region: "Kyushu",
+        standardShippingCost: 450,
+        expeditedShippingCost: 550
+    }
+];
 
-// async function importData(shippingCostData) {
-//     for (const data in shippingCostData) {
+async function importData(shippingCostData) {
+    for (const shippingCostDatum of shippingCostData) {
+        try {
+            await ShippingCost.create(shippingCostDatum);
+        } catch(err) {
+            console.log(err)
+        }
+    };
 
-//         try {
-            
-//             await ShippingCost.create();
-//         } catch(err) {
-//             console.log(err)
-//         }
-//     }
-//     console.log("Successfully input data!");
+    console.log("Successfully input data!");
 
-//     process.exit();
-// };
+    process.exit();
+};
 
 async function deleteData() {
     try {
         await ShippingCost.deleteMany();
     } catch(err) {
         console.log(err)
-    }
+    };
 
     console.log("Successfully delete data!");
     
@@ -42,7 +82,7 @@ async function deleteData() {
 };
 
 if (process.argv[2] === "--import") {
-    importData(productData);
+    importData(shippingCostData);
 } else if (process.argv[2] === "--delete") {
     deleteData();
 };
