@@ -1,17 +1,19 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const productSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "A product must have a name"],
         trim: true,
-        maxlength: [50, "A product name must have less or equal than 50 characters"]
+        maxlength: [50, "A product name must have less or equal than 50 characters"],
+        unique: true
     },
     category: {
         type: String,
         required: [true, "A product must have a category"],
         enum: {
-            values: ["electronics", "bag", "camera", "computers", "office", "food", "beverage", "alcohol", "sports", "outdoors", "clothing", "shoes", "jewelry"],
+            values: ["electronics", "bag", "camera", "computers", "office", "food", "beverage", "alcohol", "sports", "outdoors", "clothing", "shoes", "jewelry", "peripherals"],
             message: "Please input valid category"
         }
     },
@@ -25,9 +27,9 @@ const productSchema = new mongoose.Schema({
         default: 50,
         validate: {
             validator: function(stock) {
-                return stock < 0;
+                return stock > 0
             },
-            message: "Stock number must be above 0"
+            message: "Stock number must be equal or more than 0"
         }
     },
     totalSold: {
@@ -67,3 +69,5 @@ productSchema.pre("save", function(next) {
 const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;
+
+const categories = ["electronics", "bag", "camera", "computers", "office", "food", "beverage", "alcohol", "sports", "outdoors", "clothing", "shoes", "jewelry"];
