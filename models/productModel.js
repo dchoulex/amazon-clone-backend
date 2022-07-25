@@ -45,7 +45,8 @@ const productSchema = new mongoose.Schema({
         type: Number,
         min: [0, "Rating must be above 0"],
         max: [5, "Rating must be below 5"],
-        default: 0
+        default: 0,
+        set: ratingsAverage => Math.round(ratingsAverage * 10) / 10
     },
     ratingsQuantity: {
         type: Number,
