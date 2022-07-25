@@ -67,12 +67,14 @@ reviewSchema.post("save", function() {
 });
 
 reviewSchema.pre(/^findOneAnd/, async function(next) {
-    this.review = await this.findOne();
+    this.review = await this.findOne().clone();
 
     next();
 });
 
 reviewSchema.post(/^findOneAnd/, async function() {
+    if (!this.review) return;
+    
     await this.review.constructor.calculateRatingsAverage(this.review.product);
 });
 
