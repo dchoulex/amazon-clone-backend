@@ -30,11 +30,13 @@ const productSchema = new mongoose.Schema({
                 return stock > 0
             },
             message: "Stock number must be equal or more than 0"
-        }
+        },
+        select: false
     },
     totalSold: {
         type: Number,
-        default: 0
+        default: 0,
+        select: false
     },
     description: {
         type: String,
@@ -70,5 +72,3 @@ productSchema.pre("save", function(next) {
 const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;
-
-const categories = ["electronics", "bag", "camera", "computers", "office", "food", "beverage", "alcohol", "sports", "outdoors", "clothing", "shoes", "jewelry"];
