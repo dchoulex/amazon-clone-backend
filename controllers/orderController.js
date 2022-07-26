@@ -9,6 +9,9 @@ const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
 const { TAX } = require("../appConfig");
 
+exports.getAllOrders = factory.getAll(Order);
+exports.getOrder = factory.getOne(Order);
+
 exports.orderItems = catchAsync(async function(req, res, next) {
     const user = req.user;
     const userId = req.user._id;
@@ -162,8 +165,28 @@ async function getItemsSubTotal(carts) {
     return subTotal;
 };
 
+exports.cancelOrder = catchAsync(async function(req, res, next) {
+    const order = await Order.findById(req.params.id);
 
-exports.getAllOrders = factory.getAll(Order);
+    if (order.isCanceled) return next(new AppError(404, "Order have been canceled."));
 
-// exports.getOrder = 
-// exports.cancelOrder 
+    const orderItems = await OrderItem.find({ order: order._id });
+
+    for (const orderItem of orderItems) {
+        const product = await Product.findById(orderItem.product).select("+stock +totalSold");
+
+        product.stock += orderItem.amount;
+        product.totalSold -= orderItem.amount;
+
+        await product.save();
+    };
+
+    order.isCanceled = true;
+    
+    await order.save();
+
+    res.status(204).json({
+        status: "success",
+        data: null
+    })
+});

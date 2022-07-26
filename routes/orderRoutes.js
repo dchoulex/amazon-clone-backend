@@ -11,9 +11,9 @@ router
     .get(orderController.getAllOrders)
     .post(orderController.orderItems);
 
-// router
-//     .route("/:id")
-//     .get(orderController.getOrder)
-//     .delete(orderController.cancelOrder);
+router
+    .route("/:id")
+    .get(orderController.getOrder)
+    .delete(orderController.cancelOrder);
 
 module.exports = router;
