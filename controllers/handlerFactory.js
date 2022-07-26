@@ -1,9 +1,13 @@
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
-exports.getAll = function(Model) {
+exports.getAll = function(Model, populateOptions) {
     return catchAsync(async function(req, res) {
-        const documents = await Model.find({ user: req.user._id });
+        let query = Model.find({ user: req.user._id });
+
+        if (populateOptions) query = query.populate(populateOptions);
+
+        const documents = await query;
 
         let jsonData = {
             status: "success"
