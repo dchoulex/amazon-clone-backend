@@ -17,7 +17,8 @@ const cartSchema = new mongoose.Schema({
     },
     isSaved: {
         type: Boolean,
-        isSaved: false
+        default: false,
+        select: false
     }
 });
 

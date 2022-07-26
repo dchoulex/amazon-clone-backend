@@ -9,8 +9,29 @@ const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
 const { TAX } = require("../appConfig");
 
-exports.getAllOrders = factory.getAll(Order);
 exports.getOrder = factory.getOne(Order);
+
+exports.getAllOrders = catchAsync(async function(req, res) {
+    const isCanceled = req.query.isCanceled === "true";
+
+    const orders = await Order.find({ 
+        user: req.user._id,
+        isCanceled
+    });
+
+    const jsonData = {
+        status: "success"
+    };
+
+    if (orders.length === 0) {
+        jsonData.message = "No data available yet.";
+    } else {
+        jsonData.results = orders.length;
+        jsonData.data = orders;
+    }
+
+    res.status(200).json(jsonData);
+});
 
 exports.orderItems = catchAsync(async function(req, res, next) {
     const user = req.user;
@@ -20,7 +41,10 @@ exports.orderItems = catchAsync(async function(req, res, next) {
 
     checkIsInputValid(shippingAddress, paymentMethod, next);
 
-    const carts = await Cart.find({ user: userId }).populate({
+    const carts = await Cart.find({ 
+        user: userId,
+        isSaved: false
+    }).populate({
         path: "product",
         select: "+stock"
     });
@@ -72,7 +96,7 @@ exports.orderItems = catchAsync(async function(req, res, next) {
     });
 });
 
-async function createOrderItem(orderId, carts, next) {
+async function createOrderItem(orderId, carts) {
     for (const cartItem of carts) {
         const priceWhenOrdered = cartItem.product.price;
         const amount = cartItem.amount;
@@ -120,7 +144,7 @@ function checkIsInputValid(shippingAddress, paymentMethod, next) {
 async function checkIsOrderValid(carts, res, next) {
     //Check if there are any items in cart.
     if (carts.length === 0) {
-        return next(new AppError(404, "No cart item available. Please put item in your cart before order."))
+        return next(new AppError(404, "No cart item available. Please put item in your cart before order."));
     };
 
     //Check if the stock enough for order.
