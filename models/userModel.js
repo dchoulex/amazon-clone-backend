@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
         minlength: 7,
         select: false
     },
-    phoneNumber: String,
+    phoneNumber: Number,
     creditCard: [String],
     amazonPoints: {
         type: Number,
@@ -42,7 +42,7 @@ userSchema.pre("save", async function(next) {
 });
 
 userSchema.pre(/^find/, function(next) {
-    this.find({ active: {$ne : false} });
+    this.find({ isActive: { $ne : false } });
 
     next();
 });

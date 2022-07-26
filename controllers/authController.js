@@ -23,12 +23,15 @@ exports.login = catchAsync(async function(req, res, next) {
         return next(new AppError(400, "Please provide email and password!"));
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password +isActive");
+
     const isValid = await user.validatePassword(password, user.password);
 
-    if (!user || !isValid) {
+    console.log(user.isActive)
+
+    if (!user || !isValid || !user.isActive) {
         return next(new AppError(401, "Incorrect email or password"));
-    }
+    };
 
     createOrSendToken(user, 200, res);
 });
@@ -73,6 +76,11 @@ exports.protect = catchAsync(async function(req, _, next) {
         _id: "62db5e475f873d5a205603b7",
         region: "Kanto"
     };
+    // req.user = {
+    //     _id: "62dfe0e7ed2655758989ff5c",
+    //     isActive: true,
+    //     region: "Kanto"
+    // };
 
     next();
 })

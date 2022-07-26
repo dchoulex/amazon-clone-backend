@@ -8,15 +8,13 @@ router.use(authController.protect);
 
 router
     .route("/")
-    .get(cartController.getAllCartItems);
-
-router
-    .route("/:productId")
+    .get(cartController.getAllCartItems)
     .post(cartController.addCartItem);
 
 router
     .route("/:id")
     .delete(cartController.deleteCartItem)
-    .put(cartController.updateCartItem);
+    .put(cartController.updateCartItem)
+    .patch(cartController.toggleSaveCartItem);
 
 module.exports = router;
