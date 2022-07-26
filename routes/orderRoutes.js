@@ -1,15 +1,18 @@
-// const orderController = require("./../controllers/orderController");
+const orderController = require("./../controllers/orderController");
+const authController = require("./../controllers/authController");
 
 const express = require("express");
 const router = express.Router();
 
-// router
-//     .route("/")
-//     .get(orderController.getAllOrders);
+router.use(authController.protect);
+
+router
+    .route("/")
+    .get(orderController.getAllOrders)
+    .post(orderController.orderItems);
 
 // router
 //     .route("/:id")
-//     .post(orderController.orderItems)
 //     .get(orderController.getOrder)
 //     .delete(orderController.cancelOrder);
 

@@ -27,7 +27,7 @@ const productSchema = new mongoose.Schema({
         default: 50,
         validate: {
             validator: function(stock) {
-                return stock > 0
+                return stock >= 0
             },
             message: "Stock number must be equal or more than 0"
         },

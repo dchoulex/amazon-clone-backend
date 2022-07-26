@@ -4,7 +4,7 @@ const AppError = require("./../utils/appError");
 
 const Cart = require("./../models/cartModel");
 
-exports.getAllCartItems = factory.getAll(Cart);
+exports.getAllCartItems = factory.getAll(Cart, { path: "product" });
 exports.deleteCartItem = factory.deleteOne(Cart);
 exports.updateCartItem = factory.updateOne(Cart);
 

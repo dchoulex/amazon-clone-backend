@@ -70,7 +70,8 @@ function signToken(id) {
 
 exports.protect = catchAsync(async function(req, _, next) {
     req.user = {
-        _id: "62db5e475f873d5a205603b7"
+        _id: "62db5e475f873d5a205603b7",
+        region: "Kanto"
     };
 
     next();

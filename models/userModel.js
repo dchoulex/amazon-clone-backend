@@ -27,7 +27,12 @@ const userSchema = new mongoose.Schema({
         minlength: 7,
         select: false
     },
-    phoneNumber: String
+    phoneNumber: String,
+    creditCard: [String],
+    amazonPoints: {
+        type: Number,
+        default: 0
+    }
 });
 
 userSchema.pre("save", async function(next) {
