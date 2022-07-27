@@ -32,7 +32,7 @@ exports.getOne = function(Model, populateOptions) {
 
         const document = await query;
 
-        if (!document) return next(new AppError(404, "No data found"))
+        if (!document) return next(new AppError(400, "No data found"))
 
         res.status(200).json({
             status: "success",
@@ -56,7 +56,7 @@ exports.deleteOne = function(Model) {
     return catchAsync(async function(req, res, next) {
         const document = await Model.findByIdAndDelete(req.params.id);
 
-        if (!document) return next(new AppError(404, "No data found"));
+        if (!document) return next(new AppError(400, "No data found"));
 
         res.status(204).json({
             status: "success",
@@ -72,7 +72,7 @@ exports.updateOne = function(Model) {
             runValidators: true
         });
 
-        if (!document) return next(new AppError(404, "No data found"))
+        if (!document) return next(new AppError(400, "No data found"))
 
         res.status(200).json({
             status: "success",

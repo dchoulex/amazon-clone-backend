@@ -8,7 +8,7 @@ exports.getMyProfile = catchAsync(async function(req, res, next) {
     const user = await User.findOne({ _id: userId }).select("+isActive -_id");
 
     if (!user || !user.isActive) {
-        next(new AppError(404, "You need to login first to show your profile."))
+        next(new AppError(400, "You need to login first to show your profile."))
     };
 
     res.status(200).json({
@@ -18,9 +18,11 @@ exports.getMyProfile = catchAsync(async function(req, res, next) {
 });
 
 exports.deleteAccount = catchAsync(async function(req, res, next) {
-    const user = req.user;
+    const userId = req.user._id;
 
-    if (!user.isActive) return next(new AppError(404, "This account does not longer exist."));
+    const user = await User.findById(userId).select("+isActive");
+
+    if (!user.isActive) return next(new AppError(400, "This account does not longer exist."));
 
     await User.findByIdAndUpdate(user._id, { isActive: false });
 
@@ -30,65 +32,28 @@ exports.deleteAccount = catchAsync(async function(req, res, next) {
     });
 });
 
-exports.changeName = catchAsync(async function(req, res) {
-    const userId = req.user._id;
-    const { name } = req.body;
+const changeUserInfo = function(field) {
+    return catchAsync(async function(req, res) {
+        const userId = req.user._id;
+        const changedField = req.body[field];
 
-    const user = await User.findByIdAndUpdate(userId, { name }, {
-        new: true,
-        runValidators: true
+        const objectBody = {};
+        objectBody[field] = changedField;
+    
+        const user = await User.findByIdAndUpdate(userId, objectBody, {
+            new: true,
+            runValidators: true
+        }).select("+isActive");
+
+        if (!user || !user.isActive) next(new AppError(400, "User does not exist. Please login."));
+    
+        res.status(200).json({
+            status: "success",
+            data: user
+        });
     });
+};
 
-    res.status(200).json({
-        status: "success",
-        data: user
-    });
-});
-
-exports.changeEmail = catchAsync(async function(req, res) {
-    const userId = req.user._id;
-    const { email } = req.body;
-
-    const user = await User.findByIdAndUpdate(userId, { email }, {
-        new: true,
-        runValidators: true
-    });
-
-    res.status(200).json({
-        status: "success",
-        data: user
-    });
-});
-
-exports.changePhoneNumber = catchAsync(async function(req, res) {
-    const userId = req.user._id;
-    const { phoneNumber } = req.body;
-
-    const user = await User.findByIdAndUpdate(userId, { phoneNumber }, {
-        new: true,
-        runValidators: true
-    });
-
-    res.status(200).json({
-        status: "success",
-        data: user
-    });
-});
-
-exports.changePassword = catchAsync(async function(req, res, next) {
-    const userId = req.user._id;
-    const { password, confirmPassword } = req.body;
-
-    if (password !== confirmPassword) return next(new AppError(404, "Password and confirm password are different"));
-
-    const user = await User.findById(userId);
-
-    user.password = password;
-
-    await user.save();
-
-    res.status(200).json({
-        status: "success",
-        data: user
-    });
-});
+exports.changeName = changeUserInfo("name");
+exports.changeEmail = changeUserInfo("email");
+exports.changePhoneNumber = changeUserInfo("phoneNumber");
