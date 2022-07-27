@@ -122,7 +122,7 @@ async function createOrderItem(orderId, carts) {
 async function updateProductInfo(productId, amount, next) {
     const product = await Product.findById(productId).select("+stock +totalSold");
 
-    if (product.stock < amount) return next(new AppError(404, `There is not enough stock for ${product.name}`));
+    if (product.stock < amount) return next(new AppError(400, `There is not enough stock for ${product.name}`));
 
     product.stock -= amount;
 
@@ -133,18 +133,18 @@ async function updateProductInfo(productId, amount, next) {
 
 function checkIsInputValid(shippingAddress, paymentMethod, next) {
     if (!shippingAddress) {
-        next(new AppError(404, "Please input your address."))
+        next(new AppError(400, "Please input your address."))
     };
 
     if (!paymentMethod) {
-        next(new AppError(404, "Please input valid payment method."))
+        next(new AppError(400, "Please input valid payment method."))
     };
 }
 
 async function checkIsOrderValid(carts, res, next) {
     //Check if there are any items in cart.
     if (carts.length === 0) {
-        return next(new AppError(404, "No cart item available. Please put item in your cart before order."));
+        return next(new AppError(400, "No cart item available. Please put item in your cart before order."));
     };
 
     //Check if the stock enough for order.
@@ -170,7 +170,7 @@ async function checkIsOrderValid(carts, res, next) {
         itemString = notEnoughStockItems.join(", ") + " and " + lastItem;
     }
     
-    return res.status(404).json({
+    return res.status(400).json({
         status: "fail",
         message: `Sorry, there is not enough stock for ${itemString}.`,
         data: notEnoughStockItems
@@ -192,7 +192,7 @@ async function getItemsSubTotal(carts) {
 exports.cancelOrder = catchAsync(async function(req, res, next) {
     const order = await Order.findById(req.params.id);
 
-    if (order.isCanceled) return next(new AppError(404, "Order have been canceled."));
+    if (order.isCanceled) return next(new AppError(400, "Order have been canceled."));
 
     const orderItems = await OrderItem.find({ order: order._id });
 

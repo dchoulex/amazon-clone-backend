@@ -33,7 +33,7 @@ exports.addCartItem = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
     const { amount, productId } = req.body;
 
-    if (amount < 1) return next(new AppError(404, "Item amount must be more or equal to 1"));
+    if (amount < 1) return next(new AppError(400, "Item amount must be more or equal to 1"));
 
     const cartItem = await Cart.findOne({
         user: userId,
@@ -81,9 +81,9 @@ exports.toggleSaveCartItem = catchAsync(async function(req, res, next) {
     
     const cart = await Cart.findById(cartId).select("+isSaved");
 
-    if (!cart) return next(new AppError(404, "No data found with that id."));
+    if (!cart) return next(new AppError(400, "No data found with that id."));
     
-    if (cart.isSaved === isSaved) return next(new AppError(404, `Cart item has been ${isSaved ? "saved." : "put back to cart."}`));
+    if (cart.isSaved === isSaved) return next(new AppError(400, `Cart item has been ${isSaved ? "saved." : "put back to cart."}`));
 
     const newCartItem = await Cart.findByIdAndUpdate(cartId, { isSaved }, {
         new: true
