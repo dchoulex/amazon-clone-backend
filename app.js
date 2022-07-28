@@ -1,4 +1,10 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const hpp = require("hpp");
+const cors = require("cors");
 
 // Import routers
 const authRouter = require("./routes/authRoutes");
@@ -10,7 +16,23 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 
-app.use(express.json())
+//Cyber security middlewares
+const limiter = rateLimit({
+    windowMs: process.env.RATE_LIMITER_TIME_FRAME * 60 * 1000,
+    max: 100,
+    message: "Too many requests from this IP, please try again later.",
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+app.use(limiter);
+app.use(helmet());
+app.use(express.json({ limit: "10kb" }));
+app.use(mongoSanitize());
+app.use(xss());
+app.use(hpp());
+
+app.use(cors());
 
 // API routes
 app.use("/api/v1/auth", authRouter);
