@@ -193,7 +193,11 @@ async function getItemsSubTotal(carts) {
 exports.cancelOrder = catchAsync(async function(req, res, next) {
     const order = await Order.findById(req.params.id);
 
+<<<<<<< HEAD
     if (order.isCanceled) return next(new AppError(400, "This order has been canceled."));
+=======
+    if (order.isCanceled) return next(new AppError(400, "Order have been canceled."));
+>>>>>>> 9fca8b62abc263a05ed041394c527320a07b6a7c
 
     const orderItems = await OrderItem.find({ order: order._id });
 
