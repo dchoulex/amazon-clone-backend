@@ -71,9 +71,12 @@ exports.forgotPassword = catchAsync(async function(req, res, next) {
 exports.verifyOTP = catchAsync(async function(req, res, next) {
     const { OTP } = req.body;
 
+    const offset = new Date().getTimezoneOffset() * 60 * 1000;
+    const currentTime = Date.now() - offset;
+
     const user = await User.findOne({ 
         OTP,
-        OTPExpires: { $gt: Date.now() }
+        OTPExpires: { $gt: currentTime }
     }).select("+password");
 
     if (!user) return next(new AppError(400, "One Time Password (OTP) is invalid or has expired."));
@@ -87,7 +90,7 @@ exports.verifyOTP = catchAsync(async function(req, res, next) {
 exports.resetPassword = catchAsync(async function(req, res, next) {
     const { OTP, password, confirmPassword } = req.body;
 
-    const user = await User.finOne({ OTP }).select("+password");
+    const user = await User.findOne({ OTP }).select("+password");
 
     if (!user) return next(new AppError(400, "One Time Password (OTP) is invalid or has expired. Please reauthenticate OTP."));
 

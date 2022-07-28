@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema({
     OTPExpires: {
         type: Date,
         set: function(OTPExpires) {
+            if (!OTPExpires) return;
             const offset = new Date().getTimezoneOffset() * 60 * 1000;
 
             return OTPExpires - offset

@@ -20,13 +20,19 @@ exports.getAll = function(Model, populateOptions) {
             jsonData.data = documents;
         }
 
-        res.status(200).json(jsonData)
-    })
+        res.status(200).json(jsonData);
+    });
 };
 
 exports.getOne = function(Model, populateOptions) {
     return catchAsync(async function(req, res, next) {
-        let query = Model.findById(req.params.id);
+        const _id = req.params.id;
+        const userId = req.user._id;
+
+        let query = Model.findOne({
+            _id,
+            user: userId
+        });
 
         if (populateOptions) query = query.populate(populateOptions);
 
@@ -54,7 +60,13 @@ exports.createOne = function(Model) {
 
 exports.deleteOne = function(Model) {
     return catchAsync(async function(req, res, next) {
-        const document = await Model.findByIdAndDelete(req.params.id);
+        const _id = req.params.id;
+        const userId = req.user._id;
+
+        const document = await Model.findOneAndDelete({
+            _id,
+            user: userId
+        });
 
         if (!document) return next(new AppError(400, "No data found"));
 
@@ -67,7 +79,13 @@ exports.deleteOne = function(Model) {
 
 exports.updateOne = function(Model) {
     return catchAsync(async function(req, res, next) {
-        const document = await Model.findByIdAndUpdate(req.params.id, req.body, {
+        const _id = req.params.id;
+        const userId = req.user._id;
+
+        const document = await Model.findOneAndUpdate({
+            _id,
+            user: userId
+        }, req.body, {
             new: true,
             runValidators: true
         });
