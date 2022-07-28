@@ -13,9 +13,10 @@ exports.getOrder = factory.getOne(Order);
 
 exports.getAllOrders = catchAsync(async function(req, res) {
     const isCanceled = req.query.isCanceled === "true";
+    const userId = req.user._id;
 
     const orders = await Order.find({ 
-        user: req.user._id,
+        user: userId,
         isCanceled
     });
 
