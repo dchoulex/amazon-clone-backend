@@ -81,7 +81,7 @@ exports.toggleSaveCartItem = catchAsync(async function(req, res, next) {
     
     const cart = await Cart.findById(cartId).select("+isSaved");
 
-    if (!cart) return next(new AppError(400, "No data found with that id."));
+    if (!cart) return next(new AppError(400, "No data found."));
     
     if (cart.isSaved === isSaved) return next(new AppError(400, `Cart item has been ${isSaved ? "saved." : "put back to cart."}`));
 

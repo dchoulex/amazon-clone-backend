@@ -138,7 +138,7 @@ function checkIsInputValid(shippingAddress, paymentMethod, next) {
     };
 
     if (!paymentMethod) {
-        next(new AppError(400, "Please input valid payment method."))
+        next(new AppError(400, "Please input a valid payment method."))
     };
 }
 
@@ -193,7 +193,7 @@ async function getItemsSubTotal(carts) {
 exports.cancelOrder = catchAsync(async function(req, res, next) {
     const order = await Order.findById(req.params.id);
 
-    if (order.isCanceled) return next(new AppError(400, "Order have been canceled."));
+    if (order.isCanceled) return next(new AppError(400, "This order has been canceled."));
 
     const orderItems = await OrderItem.find({ order: order._id });
 
