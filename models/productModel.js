@@ -29,7 +29,7 @@ const productSchema = new mongoose.Schema({
             validator: function(stock) {
                 return stock >= 0
             },
-            message: "Stock number must be equal or more than 0"
+            message: "Stock number must be equal or more than 0."
         },
         select: false
     },

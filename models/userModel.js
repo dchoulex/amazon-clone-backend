@@ -5,7 +5,8 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "Please input your name."]
+        required: [true, "Please input your name."],
+        maxlength: 50
     },
     email: {
         type: String,
@@ -13,9 +14,10 @@ const userSchema = new mongoose.Schema({
         unique: true,
         validate: [validator.isEmail, "Please provide a valid email."]
     },
-    postCode: String,
-    address: String,
-    region: String,
+    defaultAddress: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Address"
+    },
     isActive: {
         type: Boolean,
         default: true,
@@ -25,10 +27,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please input your password"],
         minlength: 7,
+        maxlength: 30,
         select: false
     },
     phoneNumber: Number,
-    creditCard: [String],
+    defaultCreditCard: {
+        type: mongoose.Schema.ObjectId,
+        ref: "CreditCard"
+    },
     amazonPoints: {
         type: Number,
         default: 0
