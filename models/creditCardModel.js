@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 
+const currentYear = new Date().getFullYear();
+const currentMonth = new Date().getMonth() + 1;
+
 const creditCardSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.ObjectId,
@@ -7,7 +10,7 @@ const creditCardSchema = new mongoose.Schema({
         required: [true, "A credit card must belong to an user."]
     },
     type: {
-        type: Number,
+        type: String,
         required: "A credit card must have a type.",
         enum: {
             values: ["mastercard", "visa"],
@@ -17,7 +20,7 @@ const creditCardSchema = new mongoose.Schema({
     expirationDate: {
         type: Date,
         required: [true, "A credit card must have an expiration date."],
-        min: Date.now() - new Date().getTimezoneOffset() * 60 * 1000
+        min: new Date(`${currentMonth}/01/${currentYear}`).getTime()
     },
     number: {
         type: String,
