@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { NUMBER_REGEX } = require("../appConfig");
 
 const addressSchema = new mongoose.Schema({
     user: {
@@ -30,12 +31,19 @@ const addressSchema = new mongoose.Schema({
         required: [true, "An address must have rest of address."]
     },
     phoneNumber: {
-        type: Number,
-        required: [true, "An address must have phone number."]
+        type: String,
+        required: [true, "An address must have phone number."],
+        validate: {
+            validator: function(phoneNumber) {
+                return phoneNumber.match(NUMBER_REGEX) && phoneNumber.length === 11
+            },
+            message: "Please input valid phone number."
+        }
     },
     name: {
         type: String,
-        required: [true, "An address must have a name."]
+        required: [true, "An address must have a name."],
+        maxLength: [50, "A name must have at most 50 characters."]
     },
     isDefault: {
         type: Boolean,
