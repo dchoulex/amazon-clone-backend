@@ -24,7 +24,7 @@ exports.getDefaultAddress = catchAsync(async function(req, res, next) {
 
 exports.addAddress = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
-    const { postCode, prefecture, city, rest, isDefault, user, phoneNumber, name } = req.body;
+    const { postCode, country, prefecture, city, rest, isDefault, phoneNumber, name } = req.body;
 
     const existingAddress = await Address.findOne({
         user: userId,
@@ -51,13 +51,14 @@ exports.addAddress = catchAsync(async function(req, res, next) {
 
     const newAddress = await Address.create({
         user: userId,
+        country,
         postCode,
         prefecture,
         city,
         rest,
         phoneNumber,
         name,
-        user
+        isDefault
     });
 
     res.status(200).json({

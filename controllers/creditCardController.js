@@ -24,7 +24,7 @@ exports.getDefaultCreditCard = catchAsync(async function(req, res, next) {
 
 exports.addCreditCard = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
-    const { name, type, expirationDate, number, isDefault, user } = req.body;
+    const { name, type, expirationDate, number, isDefault } = req.body;
 
     const existingCreditCard = await CreditCard.findOne({
         user: userId,
