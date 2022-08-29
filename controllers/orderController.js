@@ -140,7 +140,7 @@ function checkIsInputValid(shippingAddress, paymentMethod, next) {
     if (!paymentMethod) {
         next(new AppError(400, "Please input a valid payment method."))
     };
-}
+};
 
 async function checkIsOrderValid(carts, res, next) {
     //Check if there are any items in cart.

@@ -16,7 +16,7 @@ exports.getAll = function(Model, populateOptions) {
         if (documents.length === 0) {
             jsonData.message = "No data available yet.";
         } else {
-            jsonData.results = documents.length;
+            jsonData.numOfResults = documents.length;
             jsonData.data = documents;
         }
 

@@ -36,6 +36,10 @@ const addressSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "An address must have a name."]
+    },
+    isDefault: {
+        type: Boolean,
+        default: true
     }
 });
 

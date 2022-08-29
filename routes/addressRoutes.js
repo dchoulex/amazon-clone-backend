@@ -11,6 +11,8 @@ router
     .get(addressController.getAllAddresses)
     .post(addressController.addAddress);
 
+router.use("/default", addressController.getDefaultAddress);
+
 router
     .route("/:id")
     .delete(addressController.deleteAddress)   
