@@ -34,7 +34,12 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:3001"],
+    methods: ["GET", "PUT", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
+    credentials: true
+}));
 
 // API routes
 app.use("/api/v1/auth", authRouter);

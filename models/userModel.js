@@ -45,7 +45,8 @@ const userSchema = new mongoose.Schema({
             const offset = new Date().getTimezoneOffset() * 60 * 1000;
 
             return passwordChangedAt - offset
-        }
+        },
+        select: false
     },
     OTP: Number,
     OTPExpires: {
@@ -55,7 +56,8 @@ const userSchema = new mongoose.Schema({
             const offset = new Date().getTimezoneOffset() * 60 * 1000;
 
             return OTPExpires - offset
-        }
+        },
+        select: false
     }
 });
 
@@ -70,7 +72,7 @@ userSchema.pre("save", async function(next) {
 userSchema.pre("save", function(next) {
     if (!this.isModified("password") || this.isNew) return next();
 
-    this.passwordChangedAt = Date.now();
+    this.passwordChangedAt = Date.now() - new Date().getTimezoneOffset() * 60 * 1000;
 
     next();
 })
@@ -102,7 +104,7 @@ userSchema.methods.createOTP = async function() {
     };
 
     this.OTP = OTP;
-    this.OTPExpires = Date.now() + process.env.OTP_EXPIRES * 60 * 1000;
+    this.OTPExpires = Date.now() - new Date().getTimezoneOffset() * 60 * 1000 + process.env.OTP_EXPIRES * 60 * 1000;
 
     return this.OTP;
 };

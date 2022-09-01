@@ -32,7 +32,10 @@ const creditCardSchema = new mongoose.Schema({
             message: "Please input 16 digits."
         }
     },
-    isDefault: Boolean,
+    isDefault: {
+        type: Boolean,
+        select: false
+    },
     name: {
         type: String,
         required: [true, "A credit card must have a name."],
