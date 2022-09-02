@@ -8,11 +8,15 @@ exports.deleteCartItem = factory.deleteOne(Cart);
 exports.updateCartItem = factory.updateOne(Cart);
 
 exports.getAllCartItems = catchAsync(async function(req, res) {
-    const isSaved = req.query.isSaved === "true";
+    // const isSaved = req.query.isSaved === "true";
 
-    const carts = await Cart.find({ 
-        user: req.user._id,
-        isSaved
+    // const carts = await Cart.find({ 
+    //     user: req.user._id,
+    //     isSaved
+    // }).populate({ path: "product" });
+
+    const carts = await Cart.find({
+        user: req.user._id
     }).populate({ path: "product" });
 
     const jsonData = {
@@ -22,9 +26,9 @@ exports.getAllCartItems = catchAsync(async function(req, res) {
     if (carts.length === 0) {
         jsonData.message = "No data available yet.";
     } else {
-        jsonData.results = carts.length;
+        jsonData.numOfResults = carts.length;
         jsonData.data = carts;
-    }
+    };
 
     res.status(200).json(jsonData)
 });
@@ -93,4 +97,31 @@ exports.toggleSaveCartItem = catchAsync(async function(req, res, next) {
         message: "success",
         data: newCartItem
     });
+});
+
+exports.checkoutCartItems = catchAsync(async function(req, res, next) {
+    const { checkoutCartItems } = req.body;
+    const userId = req.user._id;
+
+    if (checkoutCartItems.length === 0) return next(new AppError(400, "You must input at least 1 item to checkout."));
+
+    await Cart.deleteMany({
+        user: userId,
+        isSaved: false
+    });
+
+    for (const cartItem of checkoutCartItems) {
+        const cartData = {
+            amount: cartItem.amount,
+            product: cartItem.productId,
+            user: userId
+        };
+
+        await Cart.create(cartData);
+    };
+
+    res.status(200).json({
+        status: "success",
+        message: "Successfully updated checkout cart items."
+    })
 });

@@ -30,8 +30,7 @@ const productSchema = new mongoose.Schema({
                 return stock >= 0
             },
             message: "Stock number must be equal or more than 0."
-        },
-        select: false
+        }
     },
     totalSold: {
         type: Number,
@@ -54,7 +53,8 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    images: [String]
+    images: [String],
+    point: Number
 });
 
 productSchema.pre("save", function(next) {
@@ -63,6 +63,8 @@ productSchema.pre("save", function(next) {
         lower: true,
         trim: true
     });
+
+    this.point = Math.round(this.price * 0.01);
 
     this.images = [`${this.slug}.jpg`]
     

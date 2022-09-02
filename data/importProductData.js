@@ -2,6 +2,7 @@ const path = require("path");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const Product = require("../models/productModel");
+const slugify = require("slugify");
 
 const envFilePath = path.resolve(__dirname, "..", "config.env");
 dotenv.config({ path: envFilePath });
@@ -196,11 +197,11 @@ async function importData(productData) {
         const products = productData[category];
 
         for (const product of products) {
-
             try {
                 const newProduct = {
                     name: product.name,
                     category,
+                    slug: slugify(product.name, {lower: true}),
                     price: product.price,
                     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean diam diam, volutpat malesuada metus eget, euismod ullamcorper mi. Aliquam interdum libero a dolor cursus vestibulum. Aenean faucibus odio eget dolor tristique vehicula. Fusce vulputate euismod dolor. Aliquam erat volutpat. Nulla placerat tellus id venenatis commodo. Curabitur at euismod nibh. Praesent id arcu tempus, ullamcorper dui nec, sodales libero. Fusce consectetur imperdiet neque, eget hendrerit libero efficitur ac. Aliquam vestibulum urna et erat volutpat condimentum. Ut pharetra ut orci quis lacinia. Donec sed consectetur metus. Aliquam libero turpis, posuere at nunc in, fringilla rhoncus risus. Integer ac odio bibendum, vulputate eros."
                 };

@@ -9,7 +9,8 @@ router.use(authController.protect);
 router
     .route("/")
     .get(cartController.getAllCartItems)
-    .post(cartController.addCartItem);
+    .post(cartController.addCartItem)
+    .put(cartController.checkoutCartItems);
 
 router
     .route("/:id")
