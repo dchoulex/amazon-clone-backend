@@ -35,7 +35,7 @@ exports.addCreditCard = catchAsync(async function(req, res, next) {
 
     //Change existing default credit card to not default.
     if (isDefault) {
-        await CreditCard.findOneAndUpdate(
+        await CreditCard.updateMany(
             {
                 user: userId,
                 isDefault: true
@@ -75,7 +75,7 @@ exports.setCreditCardAsDefault = catchAsync(async function(req, res, next) {
     if (creditCard.isDefault) return next(new AppError(400, "This credit card has been set as default."));
 
     //Change existing default credit card to not default.
-    await CreditCard.findOneAndUpdate(
+    await CreditCard.updateMany(
         {
             user: userId,
             isDefault: true

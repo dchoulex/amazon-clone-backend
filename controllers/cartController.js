@@ -25,6 +25,7 @@ exports.getAllCartItems = catchAsync(async function(req, res) {
 
     if (carts.length === 0) {
         jsonData.message = "No data available yet.";
+        jsonData.data = [];
     } else {
         jsonData.numOfResults = carts.length;
         jsonData.data = carts;
