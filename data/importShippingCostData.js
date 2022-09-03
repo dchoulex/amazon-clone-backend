@@ -14,42 +14,42 @@ mongoose.connect(DATABASE_URL).then(() => {
 
 const shippingCostData = [
     {
-        region: "Hokkaido",
+        prefecture: "Hokkaido",
         standardShippingCost: 450,
         expeditedShippingCost: 550
     },
     {
-        region: "Tohoku",
+        prefecture: "Tohoku",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Kanto",
+        prefecture: "Kanto",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Chubu",
+        prefecture: "Chubu",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Kinki",
+        prefecture: "Kinki",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Chugoku",
+        prefecture: "Chugoku",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Shikoku",
+        prefecture: "Shikoku",
         standardShippingCost: 410,
         expeditedShippingCost: 510
     },
     {
-        region: "Kyushu",
+        prefecture: "Kyushu",
         standardShippingCost: 450,
         expeditedShippingCost: 550
     }
