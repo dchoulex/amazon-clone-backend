@@ -4,6 +4,7 @@ const OrderItem = require("./../models/orderItemModel");
 const Cart = require("./../models/cartModel");
 const Product = require("./../models/productModel");
 const ShippingCost = require("./../models/shippingCostModel");
+const Address = require("./../models/addressModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
@@ -12,24 +13,21 @@ const { TAX } = require("../appConfig");
 exports.getOrder = factory.getOne(Order);
 
 exports.getAllOrders = catchAsync(async function(req, res) {
-    const isCanceled = req.query.isCanceled === "true";
+    // const isCanceled = req.query.isCanceled === "true";
     const userId = req.user._id;
 
-    const orders = await Order.find({ 
-        user: userId,
-        isCanceled
-    });
+    const orders = await Order.find({ user: userId });
 
     const jsonData = {
-        status: "success"
+        status: "success",
+        numOfResults: orders.length
     };
 
     if (orders.length === 0) {
         jsonData.message = "No data available yet.";
     } else {
-        jsonData.results = orders.length;
         jsonData.data = orders;
-    }
+    };
 
     res.status(200).json(jsonData);
 });
@@ -51,6 +49,13 @@ exports.orderItems = catchAsync(async function(req, res, next) {
     });
 
     await checkIsOrderValid(carts, res, next);
+
+    const defaultAddress = await Address.findOne({
+        user: userId,
+        isDefault: true
+    });
+
+    if (!defaultAddress) return next(new AppError(400, "No default address found. Please set a default address."));
 
     //Calculate grand total
     const subTotal = await getItemsSubTotal(carts);

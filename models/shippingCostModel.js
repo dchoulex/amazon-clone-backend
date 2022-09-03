@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const { PREFECTURES } = require("./../appConfig");
 
 const shippingCostSchema = new mongoose.Schema({
-    region: {
+    prefecture: {
         type: String,
         enum: {
-            values: ["Hokkaido", "Tohoku", "Kanto", "Chubu", "Kinki", "Chugoku", "Shikoku", "Kyushu"],
-            message: "Please input valid region."
+            values: PREFECTURES,
+            message: "Please input valid prefecture."
         }
     },
     standardShippingCost: {

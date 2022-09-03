@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { NUMBER_REGEX } = require("../appConfig");
+const { PREFECTURES } = require("./../appConfig");
 
 const addressSchema = new mongoose.Schema({
     user: {
@@ -18,7 +19,7 @@ const addressSchema = new mongoose.Schema({
     prefecture: {
         type: String,
         enum: {
-            values: ["Hokkaido", "Tohoku", "Kanto", "Chubu", "Kinki", "Chugoku", "Shikoku", "Kyushu"],
+            values: PREFECTURES,
             message: "Please input valid prefecture."
         }
     },
