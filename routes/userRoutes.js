@@ -6,7 +6,11 @@ const router = express.Router();
 
 router.use(authController.protect);
 
-router.get("/myProfile", userController.getMyProfile);
+router
+    .route("/myProfile")
+    .get(userController.getMyProfile)
+    .put(userController.updateMyProfile);
+
 router.patch("/changeName", userController.changeName);
 router.patch("/changeEmail", userController.changeEmail);
 router.patch("/changePhoneNumber", userController.changePhoneNumber);

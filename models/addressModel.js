@@ -45,10 +45,7 @@ const addressSchema = new mongoose.Schema({
         required: [true, "An address must have a name."],
         maxLength: [50, "A name must have at most 50 characters."]
     },
-    isDefault: {
-        type: Boolean,
-        select: false
-    }
+    isDefault: Boolean
 });
 
 const Address = mongoose.model("Address", addressSchema);

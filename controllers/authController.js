@@ -34,7 +34,43 @@ exports.login = catchAsync(async function(req, res, next) {
         return next(new AppError(401, "Incorrect email or password"));
     };
 
-    createOrSendToken(user, 200, res);
+    const userId = user._id;
+    const token = signToken(user._id);
+
+    const defaultAddress = await Address.findOne({
+        user: userId,
+        isDefault: true
+    });
+
+    const defaultCreditCard = await CreditCard.findOne({
+        user: userId,
+        isDefault: true
+    });
+
+    const carts = await Cart.find({ user: userId});
+    
+    const jsonData = {
+        user,
+        defaultAddress,
+        defaultCreditCard,
+        numOfCartItems: carts.numOfResults
+    };
+
+    const cookieOptions = {
+        expires: new Date(
+            Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true,
+        secure: true
+    };
+
+    res.cookie("jwt", token, cookieOptions);
+
+    res.status(200).json({
+        status: "success",
+        token,
+        data: jsonData
+    });
 });
 
 exports.forgotPassword = catchAsync(async function(req, res, next) {
@@ -161,7 +197,7 @@ function createOrSendToken(user, statusCode, res) {
         token,
         data: userData
     })
-}
+};
 
 function signToken(userId) {
     return jwt.sign({ userId }, process.env.JWT_SECRET, {

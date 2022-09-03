@@ -34,7 +34,7 @@ exports.addCreditCard = catchAsync(async function(req, res, next) {
     if (existingCreditCard) return (next(new AppError(400, "This credit card has been registered.")));
 
     //Change existing default credit card to not default.
-    if (isDefault) {
+    if (isDefault === "true") {
         await CreditCard.updateMany(
             {
                 user: userId,

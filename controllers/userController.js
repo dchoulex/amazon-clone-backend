@@ -32,6 +32,26 @@ exports.deleteAccount = catchAsync(async function(req, res, next) {
     });
 });
 
+exports.updateMyProfile = catchAsync(async function(req, res, next) {
+    const userId = req.user._id;
+    const { name, email, phoneNumber } = req.body;
+
+    const user = await User.findById(userId).select("+isActive");
+
+    if (!user || !user.isActive) next(new AppError(400, "User does not exist. Please login."));
+
+    user.name = name;
+    user.email = email;
+    user.phoneNumber = phoneNumber;
+
+    await user.save();
+
+    res.status(200).json({
+        status: "success",
+        data: user
+    });
+});
+
 const changeUserInfo = function(field) {
     return catchAsync(async function(req, res) {
         const userId = req.user._id;

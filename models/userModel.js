@@ -30,7 +30,15 @@ const userSchema = new mongoose.Schema({
         maxlength: 30,
         select: false
     },
-    phoneNumber: Number,
+    phoneNumber: {
+        type: String,
+        validate: {
+            validator: function(phoneNumber) {
+                return phoneNumber.length === 11;
+            },
+            message: "Phone number must be 11 digits."
+        } 
+    },
     defaultCreditCard: {
         type: mongoose.Schema.ObjectId,
         ref: "CreditCard"

@@ -37,8 +37,8 @@ exports.addAddress = catchAsync(async function(req, res, next) {
     if (existingAddress) return (next(new AppError(400, "This address has been registered.")));
 
     //Change existing default address to not default.
-    if (isDefault) {
-        await Address.findOneAndUpdate(
+    if (isDefault === "true") {
+        await Address.updateMany(
             {
                 user: userId,
                 isDefault: true
@@ -81,7 +81,7 @@ exports.setAddressAsDefault = catchAsync(async function(req, res, next) {
     if (address.isDefault) return next(new AppError(400, "This address has been set as default."));
 
     //Change existing default address to not default.
-    await Address.findOneAndUpdate(
+    await Address.updateMany(
         {
             user: userId,
             isDefault: true
