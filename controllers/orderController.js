@@ -9,7 +9,32 @@ const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
 const { TAX, DELIVERY_STATUS } = require("../appConfig");
 
-exports.getOrder = factory.getOne(Order);
+exports.getOrderDetails = catchAsync(async function(req, res) {
+    const userId = req.user._id;
+    const orderId = req.params.id;
+
+    const order = await Order.findOne({
+        _id: orderId,
+        user: userId
+    });
+
+    const orderItems = await OrderItem.findOne({ 
+        order: orderId, 
+        user: userId
+    });
+
+    const jsonData = {
+        order,
+        orderItems
+    };
+
+    console.log(jsonData)
+
+    res.status(200).json({
+        status: "success",
+        data: jsonData
+    });
+});
 
 exports.getAllOrders = catchAsync(async function(req, res) {
     const userId = req.user._id;

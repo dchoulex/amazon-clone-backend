@@ -13,7 +13,7 @@ router
 
 router
     .route("/:id")
-    .get(orderController.getOrder)
+    .get(orderController.getOrderDetails)
     .patch(orderController.orderBack)
     .delete(orderController.cancelOrder);
 

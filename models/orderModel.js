@@ -78,6 +78,11 @@ orderSchema.pre(/^find/, function(next) {
         select: "-_id"
     });
 
+    this.populate({
+        path: "user",
+        select: "-passwordResetToken -passwordResetExpires"
+    })
+
     next();
 });
 
