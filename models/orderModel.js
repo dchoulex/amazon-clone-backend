@@ -74,7 +74,7 @@ orderSchema.virtual("orderItems", {
 
 orderSchema.pre(/^find/, function(next) {
     this.populate({
-        path: "shippingAddress",
+        path: "shippingAddress creditCard shippingCost",
         select: "-_id"
     });
 

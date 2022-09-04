@@ -18,7 +18,7 @@ exports.getOrderDetails = catchAsync(async function(req, res) {
         user: userId
     });
 
-    const orderItems = await OrderItem.findOne({ 
+    const orderItems = await OrderItem.find({ 
         order: orderId, 
         user: userId
     });
@@ -27,8 +27,6 @@ exports.getOrderDetails = catchAsync(async function(req, res) {
         order,
         orderItems
     };
-
-    console.log(jsonData)
 
     res.status(200).json({
         status: "success",
