@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const { PAYMENT_METHODS } = require("../appConfig");
+
 const orderSchema = new mongoose.Schema(
     {
         user: {
@@ -23,9 +25,13 @@ const orderSchema = new mongoose.Schema(
         paymentMethod: {
             type: String,
             enum: {
-                values: ["Credit Card", "Convenience Store", "ATM", "Amazon Points"],
+                values: PAYMENT_METHODS,
                 message: "Please input valid payment method."
             }
+        },
+        creditCard: {
+            type: mongoose.Schema.ObjectId,
+            ref: "CreditCard"
         },
         orderDate: {
             type: Date,
@@ -37,7 +43,8 @@ const orderSchema = new mongoose.Schema(
             }
         },
         shippingAddress: {
-            type: String,
+            type: mongoose.Schema.ObjectId,
+            ref: "Address",
             required: [true, "An order must have shipping address"]
         },
         isCanceled: {

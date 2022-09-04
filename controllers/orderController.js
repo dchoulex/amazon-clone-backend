@@ -4,7 +4,6 @@ const OrderItem = require("./../models/orderItemModel");
 const Cart = require("./../models/cartModel");
 const Product = require("./../models/productModel");
 const ShippingCost = require("./../models/shippingCostModel");
-const Address = require("./../models/addressModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
@@ -13,7 +12,6 @@ const { TAX } = require("../appConfig");
 exports.getOrder = factory.getOne(Order);
 
 exports.getAllOrders = catchAsync(async function(req, res) {
-    // const isCanceled = req.query.isCanceled === "true";
     const userId = req.user._id;
 
     const orders = await Order.find({ user: userId });
@@ -25,17 +23,28 @@ exports.getAllOrders = catchAsync(async function(req, res) {
 
     if (orders.length === 0) {
         jsonData.message = "No data available yet.";
-    } else {
-        jsonData.data = orders;
+    };
+
+    if (orders.length > 0) {
+        for (const order of orders) {
+            const orderItems = await OrderItem.find({ order: order._id });
+    
+            const orderData = {
+                ...order,
+                orderItems
+            };
+    
+            jsonData.data = orderData;
+        };
     };
 
     res.status(200).json(jsonData);
 });
 
 exports.orderItems = catchAsync(async function(req, res, next) {
-    const user = req.user;
     const userId = req.user._id;
-    const { isExpedited, shippingAddress, paymentMethod } = req.body;
+    const { isExpedited, shippingAddress, paymentMethod, creditCard } = req.body;
+
     const discount = req.body.discount ? req.body.discount : 0;
 
     checkIsInputValid(shippingAddress, paymentMethod, next);
@@ -50,12 +59,7 @@ exports.orderItems = catchAsync(async function(req, res, next) {
 
     await checkIsOrderValid(carts, res, next);
 
-    const defaultAddress = await Address.findOne({
-        user: userId,
-        isDefault: true
-    });
-
-    if (!defaultAddress) return next(new AppError(400, "No default address found. Please set a default address."));
+    const shippingCostData = await ShippingCost.findOne({ prefecture: shippingAddress.prefecture });
 
     //Calculate grand total
     const subTotal = await getItemsSubTotal(carts);
@@ -63,8 +67,6 @@ exports.orderItems = catchAsync(async function(req, res, next) {
     const tax = (subTotal * TAX) % 1 === 0 ? Math.trunc(subTotal * TAX) : Math.trunc(subTotal * TAX) + 1;
 
     const subTotalAfterTax = subTotal + tax;
-
-    const shippingCostData = await ShippingCost.findOne({ region: user.region });
 
     let shippingCost;
 
@@ -78,6 +80,10 @@ exports.orderItems = catchAsync(async function(req, res, next) {
 
     const grandTotal = total - discount;
 
+    if (paymentMethod === "Credit Card" && !creditCard){
+        return next(new AppError(400, "Please input your credit card info to continue payment using credit card."));
+    } 
+
     //Create order
     const orderData = {
         user: userId,
@@ -85,11 +91,12 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         subTotal: subTotalAfterTax,
         tax,
         total,
-        shippingAddress,
+        shippingAddress: shippingAddress._id,
         isExpedited,
         paymentMethod,
         discount,
-        grandTotal
+        grandTotal,
+        creditCard
     };
 
     const newOrder = await Order.create(orderData);
@@ -138,13 +145,9 @@ async function updateProductInfo(productId, amount, next) {
 }
 
 function checkIsInputValid(shippingAddress, paymentMethod, next) {
-    if (!shippingAddress) {
-        next(new AppError(400, "Please input your address."))
-    };
+    if (!shippingAddress) return next(new AppError(400, "Please input your address."))
 
-    if (!paymentMethod) {
-        next(new AppError(400, "Please input a valid payment method."))
-    };
+    if (!paymentMethod) return next(new AppError(400, "Please input a valid payment method."));
 };
 
 async function checkIsOrderValid(carts, res, next) {
