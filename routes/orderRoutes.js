@@ -14,6 +14,7 @@ router
 router
     .route("/:id")
     .get(orderController.getOrder)
+    .patch(orderController.orderBack)
     .delete(orderController.cancelOrder);
 
 module.exports = router;

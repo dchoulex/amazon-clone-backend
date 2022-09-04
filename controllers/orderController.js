@@ -7,18 +7,18 @@ const ShippingCost = require("./../models/shippingCostModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
-const { TAX } = require("../appConfig");
+const { TAX, DELIVERY_STATUS } = require("../appConfig");
 
 exports.getOrder = factory.getOne(Order);
 
 exports.getAllOrders = catchAsync(async function(req, res) {
     const userId = req.user._id;
-
     const orders = await Order.find({ user: userId });
 
     const jsonData = {
         status: "success",
-        numOfResults: orders.length
+        numOfResults: orders.length,
+        data: []
     };
 
     if (orders.length === 0) {
@@ -28,17 +28,36 @@ exports.getAllOrders = catchAsync(async function(req, res) {
     if (orders.length > 0) {
         for (const order of orders) {
             const orderItems = await OrderItem.find({ order: order._id });
-    
-            const orderData = {
-                ...order,
+
+            jsonData.data.push({
+                order,
                 orderItems
-            };
-    
-            jsonData.data = orderData;
+            });
         };
     };
 
     res.status(200).json(jsonData);
+});
+
+exports.orderBack = catchAsync(async function(req, res, next) {
+    const userId = req.user._id;
+    const orderId = req.params.id;
+
+    await Order.findOneAndUpdate(
+        {
+            _id: orderId,
+            user: userId
+        }, 
+        {
+            status: DELIVERY_STATUS[0],
+            isCanceled: false
+        }
+    );
+
+    res.status(200).json({
+        status: "success",
+        message: "Successfully order back."
+    })
 });
 
 exports.orderItems = catchAsync(async function(req, res, next) {

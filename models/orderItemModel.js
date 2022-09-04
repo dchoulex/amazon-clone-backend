@@ -26,6 +26,12 @@ orderItemSchema.pre("save", function(next) {
     next();
 });
 
+orderItemSchema.pre(/^find/, function(next) {
+    this.populate({ path: "product" });
+
+    next();
+})
+
 const OrderItem = mongoose.model("OrderItem", orderItemSchema);
 
 module.exports = OrderItem;
