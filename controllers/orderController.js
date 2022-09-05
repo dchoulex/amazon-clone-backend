@@ -1,4 +1,3 @@
-const factory = require("./handlerFactory");
 const Order = require("./../models/orderModel");
 const OrderItem = require("./../models/orderItemModel");
 const Cart = require("./../models/cartModel");
@@ -7,7 +6,7 @@ const ShippingCost = require("./../models/shippingCostModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
-const { TAX, DELIVERY_STATUS } = require("../appConfig");
+const { TAX, DELIVERY_STATUS, CURRENT_TIME } = require("../appConfig");
 
 exports.getOrderDetails = catchAsync(async function(req, res) {
     const userId = req.user._id;
@@ -17,6 +16,8 @@ exports.getOrderDetails = catchAsync(async function(req, res) {
         _id: orderId,
         user: userId
     });
+
+    await updateOrderStatus(order);
 
     const orderItems = await OrderItem.find({ 
         order: orderId, 
@@ -48,6 +49,10 @@ exports.getAllOrders = catchAsync(async function(req, res) {
         jsonData.message = "No data available yet.";
     };
 
+    for (const order of orders) {
+        await updateOrderStatus(order);
+    };
+
     if (orders.length > 0) {
         for (const order of orders) {
             const orderItems = await OrderItem.find({ order: order._id });
@@ -61,6 +66,50 @@ exports.getAllOrders = catchAsync(async function(req, res) {
 
     res.status(200).json(jsonData);
 });
+
+async function updateOrderStatus(order) {
+    const timeDifference = CURRENT_TIME - order.orderDate;
+
+    if (order.isExpedited) {
+        switch(true) {
+            case timeDifference < 1 * 60 * 1000:
+                order.status = DELIVERY_STATUS[0];
+                break;
+            case timeDifference < 2 * 60 * 1000:
+                order.status = DELIVERY_STATUS[1];
+                break;
+            case timeDifference < 3 * 60 * 1000:
+                order.status = DELIVERY_STATUS[2];
+                break;
+            case timeDifference >= 3 * 60 * 1000:
+                order.status = DELIVERY_STATUS[3];
+                break;
+            default:
+                break;
+        }
+    };
+
+    if (!order.isExpedited) {
+        switch(true) {
+            case timeDifference < 5 * 60 * 1000:
+                order.status = DELIVERY_STATUS[0];
+                break;
+            case timeDifference < 10 * 60 * 1000:
+                order.status = DELIVERY_STATUS[1];
+                break;
+            case timeDifference < 15 * 60 * 1000:
+                order.status = DELIVERY_STATUS[2];
+                break;
+            case timeDifference >= 20 * 60 * 1000:
+                order.status = DELIVERY_STATUS[3];
+                break;
+            default:
+                break;
+        }
+    };
+
+    await order.save();
+};
 
 exports.orderBack = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
@@ -89,7 +138,9 @@ exports.orderItems = catchAsync(async function(req, res, next) {
 
     const discount = req.body.discount ? req.body.discount : 0;
 
-    checkIsInputValid(shippingAddress, paymentMethod, next);
+    if (!shippingAddress) return next(new AppError(400, "Please input your address."))
+
+    if (!paymentMethod) return next(new AppError(400, "Please input a valid payment method."));
 
     const carts = await Cart.find({ 
         user: userId,
@@ -98,6 +149,10 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         path: "product",
         select: "+stock"
     });
+
+    if (carts.length === 0) {
+        return next(new AppError(400, "No cart item available. Please put item in your cart before order."));
+    };
 
     await checkIsOrderValid(carts, res, next);
 
@@ -186,18 +241,13 @@ async function updateProductInfo(productId, amount, next) {
     await product.save();
 }
 
-function checkIsInputValid(shippingAddress, paymentMethod, next) {
-    if (!shippingAddress) return next(new AppError(400, "Please input your address."))
+// function checkIsInputValid(shippingAddress, paymentMethod, next) {
+//     if (!shippingAddress) return next(new AppError(400, "Please input your address."))
 
-    if (!paymentMethod) return next(new AppError(400, "Please input a valid payment method."));
-};
+//     if (!paymentMethod) return next(new AppError(400, "Please input a valid payment method."));
+// };
 
 async function checkIsOrderValid(carts, res, next) {
-    //Check if there are any items in cart.
-    if (carts.length === 0) {
-        return next(new AppError(400, "No cart item available. Please put item in your cart before order."));
-    };
-
     //Check if the stock enough for order.
     const notEnoughStockItems = [];
 
@@ -257,6 +307,7 @@ exports.cancelOrder = catchAsync(async function(req, res, next) {
     };
 
     order.isCanceled = true;
+    order.status = "Canceled";
     
     await order.save();
 

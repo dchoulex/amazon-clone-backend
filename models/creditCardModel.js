@@ -40,6 +40,12 @@ const creditCardSchema = new mongoose.Schema({
     }
 });
 
+creditCardSchema.pre(/^find/, function(next) {
+    this.populate({ path: "user" });
+
+    next();
+});
+
 const CreditCard = mongoose.model("CreditCard", creditCardSchema);
 
 module.exports = CreditCard;

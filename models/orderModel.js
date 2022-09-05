@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const { PAYMENT_METHODS, DELIVERY_STATUS, CURRENT_TIME } = require("../appConfig");
+const { PAYMENT_METHODS, DELIVERY_STATUS } = require("../appConfig");
 
 const orderSchema = new mongoose.Schema(
     {
@@ -9,7 +9,8 @@ const orderSchema = new mongoose.Schema(
             enum: {
                 values: DELIVERY_STATUS,
                 message: "Please input valid delivery status."
-            }
+            },
+            default: DELIVERY_STATUS[0]
         },
         user: {
             type: mongoose.Schema.ObjectId,
@@ -85,65 +86,6 @@ orderSchema.pre(/^find/, function(next) {
 
     next();
 });
-
-// orderSchema.pre("save", function(next) {
-//     this.status = DELIVERY_STATUS[0];
-
-//     next();
-// });
-
-// orderSchema.pre(/^find/, async function(next) {
-//     this.orders = await this.find().clone();
-
-//     for (const order of this.orders) {
-//         const orderDate = new Date(order.orderDate).getTime();
-//         const timeDifference = CURRENT_TIME - orderDate;
-    
-//         console.log(timeDifference)
-    
-//         if (!order.isCanceled && order.isExpedited) {
-//             switch (timeDifference) {
-//                 case (timeDifference < 1 * 60 * 1000):
-//                     order.status = DELIVERY_STATUS[1]
-//                     break;
-//                 case timeDifference <= 2 * 60 * 1000:
-//                     order.status = DELIVERY_STATUS[2]
-//                     break;
-//                 case (timeDifference > 2 * 60 * 1000):
-//                     console.log("here")
-//                     order.status = DELIVERY_STATUS[3]
-//                     break;
-//                 default:
-//                     break;
-//             }
-//         };
-    
-//         if (!order.isCanceled && !order.isExpedited) {
-//             switch (timeDifference) {
-//                 case timeDifference < 10 * 60 * 1000:
-//                     order.status = DELIVERY_STATUS[1]
-//                     break;
-//                 case timeDifference < 20 * 60 * 1000:
-//                     order.status = DELIVERY_STATUS[2]
-//                     break;
-//                 case timeDifference < 30 * 60 * 1000:
-//                     order.status = DELIVERY_STATUS[3]
-//                     break;
-//                 default:
-//                     break;
-//             }
-//         };
-
-//         if (timeDifference > 2 * 60 * 1000){
-//             this.order = await this.findOne();
-//             this.order.status = DELIVERY_STATUS[3]
-//         }
-    
-//         console.log(order.status)
-//     }
-
-//     next();
-// });
 
 const Order = mongoose.model("Order", orderSchema);
 
