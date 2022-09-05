@@ -66,6 +66,10 @@ reviewSchema.post("save", function() {
     this.constructor.calculateRatingsAverage(this.product);
 });
 
+reviewSchema.pre(/^find/, async function(next) {
+    this.populate({ path: "product" })
+});
+
 reviewSchema.pre(/^findOneAnd/, async function(next) {
     this.review = await this.findOne().clone();
 

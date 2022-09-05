@@ -13,11 +13,14 @@ exports.getReviewableProducts = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
 
     const reviewableProducts = [];
-    const reviewableProductIds = new Set();
+    const reviewedProductIds = new Set();
 
-    const jsonData = {
-        status: "success"
-    }
+    const reviews = await Review.find({ user: userId });
+
+    for (const review of reviews) {
+        const productId = review.product._id + "";
+        reviewedProductIds.add(productId)
+    };
 
     const orders = await Order.find({
         user: userId
@@ -30,9 +33,9 @@ exports.getReviewableProducts = catchAsync(async function(req, res, next) {
             for (const orderItem of orderItems) {
                 const productId = orderItem.product._id + "";
 
-                if (reviewableProductIds.has(productId)) continue;
+                if (reviewedProductIds.has(productId)) continue;
 
-                reviewableProductIds.add(productId);
+                reviewedProductIds.add(productId);
 
                 reviewableProducts.push(orderItem);
             }

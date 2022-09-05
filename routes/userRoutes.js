@@ -9,7 +9,7 @@ router.use(authController.protect);
 
 router.get("/myReviews", reviewController.getAllMyReviews);
 
-router.get("/reviewables", reviewController.getReviewableProducts);
+router.get("/reviewableProducts", reviewController.getReviewableProducts);
 
 router
     .route("/myProfile")
