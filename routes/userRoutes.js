@@ -1,10 +1,15 @@
 const userController = require("../controllers/userController");
 const authController = require("../controllers/authController");
+const reviewController = require("../controllers/reviewController");
 
 const express = require("express");
 const router = express.Router();
 
 router.use(authController.protect);
+
+router.get("/myReviews", reviewController.getAllMyReviews);
+
+router.get("/reviewables", reviewController.getReviewableProducts);
 
 router
     .route("/myProfile")

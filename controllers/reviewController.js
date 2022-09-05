@@ -1,11 +1,50 @@
 const Review = require("./../models/reviewModel");
+const Order = require("./../models/orderModel");
+const OrderItem = require("./../models/orderItemModel");
 const factory = require("./handlerFactory");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
-// exports.getAllMyReviews = factory.getAll(Review);
-exports.getReview = factory.getOne(Review);
+exports.getAllMyReviews = factory.getAll(Review);
+exports.getReviewDetails = factory.getOne(Review);
 exports.deleteReview = factory.deleteOne(Review);
+
+exports.getReviewableProducts = catchAsync(async function(req, res, next) {
+    const userId = req.user._id;
+
+    const reviewableProducts = [];
+    const reviewableProductIds = new Set();
+
+    const jsonData = {
+        status: "success"
+    }
+
+    const orders = await Order.find({
+        user: userId
+    });
+
+    if (orders.length !== 0) {
+        for (const order of orders) {
+            const orderItems = await OrderItem.find({ order: order._id });
+
+            for (const orderItem of orderItems) {
+                const productId = orderItem.product._id + "";
+
+                if (reviewableProductIds.has(productId)) continue;
+
+                reviewableProductIds.add(productId);
+
+                reviewableProducts.push(orderItem);
+            }
+        };
+    };
+
+    res.status(200).json({
+        status: "success",
+        numOfResults: reviewableProducts.length,
+        data: reviewableProducts
+    })
+});
 
 exports.updateReview = catchAsync(async function(req, res, next) {
     const { productId, id } = req.params;

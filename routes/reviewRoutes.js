@@ -13,7 +13,7 @@ router.use(authController.protect);
 
 router
     .route("/:id")
-    .get(reviewController.getReview)
+    .get(reviewController.getReviewDetails)
     .delete(reviewController.deleteReview)
     .patch(reviewController.updateReview);
 
