@@ -74,18 +74,16 @@ exports.getAllProductReviews = catchAsync(async function(req, res) {
 
     const reviews = await Review.find({ product: productId });
 
+    const jsonData = {
+        status: "success",
+        data: reviews
+    }
+
     if (reviews.length === 0) {
-        return res.status(200).json({
-            status: "success",
-            message: "No review available yet."
-        })
+        jsonData.message = "No review available yet.";
     };
 
-    res.status(200).json({
-        status: "success",
-        results: reviews.length,
-        data: reviews
-    });
+    res.status(200).json(jsonData);
 });
 
 exports.createReview = catchAsync(async function(req, res, next) {

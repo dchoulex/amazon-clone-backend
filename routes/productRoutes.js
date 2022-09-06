@@ -6,12 +6,15 @@ const router = express.Router();
 
 router.use("/:productId/reviews", reviewRouter);
 
+router.get("/best-sellers", productController.getBestSellerProducts);
+
 router
     .route("/")
-    .get(productController.getAllProducts);
+    .get(productController.getCategoryProducts)
+    .post(productController.searchProducts);
 
 router
     .route("/:id")
-    .get(productController.getProduct)
+    .get(productController.getProductDetails);
 
 module.exports = router;

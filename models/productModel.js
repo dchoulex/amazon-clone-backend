@@ -34,8 +34,7 @@ const productSchema = new mongoose.Schema({
     },
     totalSold: {
         type: Number,
-        default: 0,
-        select: false
+        default: 0
     },
     description: {
         type: String,
