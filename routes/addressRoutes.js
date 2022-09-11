@@ -1,10 +1,13 @@
 const authController = require("../controllers/authController");
 const addressController = require("../controllers/addressController");
+const shippingCostRouter = require("./shippingCostRoutes");
 
 const express = require("express");
 const router = express.Router();
 
 router.use(authController.protect);
+
+router.use("/:addressId/shippingCosts", shippingCostRouter)
 
 router
     .route("/")

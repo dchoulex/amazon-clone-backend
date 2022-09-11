@@ -121,8 +121,13 @@ exports.checkoutCartItems = catchAsync(async function(req, res, next) {
         await Cart.create(cartData);
     };
 
+    const cartItems = await Cart.find({
+        user: userId,
+        isSaved: false
+    })
+
     res.status(200).json({
         status: "success",
-        message: "Successfully updated checkout cart items."
+        data: cartItems
     })
 });

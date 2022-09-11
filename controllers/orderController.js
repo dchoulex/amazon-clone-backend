@@ -3,6 +3,7 @@ const OrderItem = require("./../models/orderItemModel");
 const Cart = require("./../models/cartModel");
 const Product = require("./../models/productModel");
 const ShippingCost = require("./../models/shippingCostModel");
+const Address = require("./../models/addressModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
@@ -136,8 +137,6 @@ exports.orderItems = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
     const { isExpedited, shippingAddress, paymentMethod, creditCard } = req.body;
 
-    const discount = req.body.discount ? req.body.discount : 0;
-
     if (!shippingAddress) return next(new AppError(400, "Please input your address."))
 
     if (!paymentMethod) return next(new AppError(400, "Please input a valid payment method."));
@@ -156,7 +155,9 @@ exports.orderItems = catchAsync(async function(req, res, next) {
 
     await checkIsOrderValid(carts, res, next);
 
-    const shippingCostData = await ShippingCost.findOne({ prefecture: shippingAddress.prefecture });
+    const orderShippingAddress = await Address.findById(shippingAddress);
+
+    const shippingCostData = await ShippingCost.findOne({ prefecture: orderShippingAddress.prefecture });
 
     //Calculate grand total
     const subTotal = await getItemsSubTotal(carts);
@@ -173,11 +174,9 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         shippingCost = isExpedited ? shippingCostData.expeditedShippingCost : shippingCostData.standardShippingCost;
     };
 
-    const total = shippingCost + subTotalAfterTax;
+    const grandTotal = shippingCost + subTotalAfterTax;
 
-    const grandTotal = total - discount;
-
-    if (paymentMethod === "Credit Card" && !creditCard){
+    if (paymentMethod === "credit" && !creditCard){
         return next(new AppError(400, "Please input your credit card info to continue payment using credit card."));
     } 
 
@@ -187,11 +186,9 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         shippingCost: shippingCostData._id,
         subTotal: subTotalAfterTax,
         tax,
-        total,
-        shippingAddress: shippingAddress._id,
+        shippingAddress,
         isExpedited,
         paymentMethod,
-        discount,
         grandTotal,
         creditCard
     };
