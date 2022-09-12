@@ -5,8 +5,22 @@ const AppError = require("./../utils/appError");
 const Address = require("./../models/addressModel");
 
 exports.getAllAddresses = factory.getAll(Address);
-exports.deleteAddress = factory.deleteOne(Address);
 exports.updateAddress = factory.updateOne(Address);
+
+exports.deleteAddress = catchAsync(async function(req, res) {
+    const userId = req.user._id;
+    const addressId = req.params.id;
+
+    await Address.findOneAndUpdate({
+        _id: addressId,
+        user: userId
+    }, { isActive: false });
+
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
+});
 
 exports.getDefaultAddress = catchAsync(async function(req, res, next) {
     const defaultAddress = await Address.findOne({

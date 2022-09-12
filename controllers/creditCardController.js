@@ -8,6 +8,21 @@ exports.getAllCreditCards = factory.getAll(CreditCard);
 exports.deleteCreditCard = factory.deleteOne(CreditCard);
 exports.updateCreditCard = factory.updateOne(CreditCard);
 
+exports.deleteCreditCard = catchAsync(async function(req, res) {
+    const userId = req.user._id;
+    const creditCardId = req.params.id;
+
+    await CreditCard.findOneAndUpdate({
+        _id: creditCardId,
+        user: userId
+    }, { isActive: false });
+
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
+});
+
 exports.getDefaultCreditCard = catchAsync(async function(req, res, next) {
     const defaultCreditCard = await CreditCard.findOne({
         user: req.user._id,

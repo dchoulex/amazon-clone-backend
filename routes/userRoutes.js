@@ -16,6 +16,7 @@ router
     .get(userController.getMyProfile)
     .put(userController.updateMyProfile);
 
+// router.patch("/prime", userController.togglePrime);
 router.patch("/changeName", userController.changeName);
 router.patch("/changeEmail", userController.changeEmail);
 router.patch("/changePhoneNumber", userController.changePhoneNumber);

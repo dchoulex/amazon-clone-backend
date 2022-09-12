@@ -125,20 +125,16 @@ exports.getRecommendationProducts = catchAsync(async function(req, res) {
 
     const sortedCountByCategories = Object.keys(countByCategories)
         .sort((a, b) => countByCategories[b] - countByCategories[a])
-        .reduce((object, key) => {
-            object[key] = countByCategories[key];
+        .reduce((object, key, index) => {
+            if (index < 3) object[key] = countByCategories[key];
 
             return object;
         }, {});
 
     for (const category in sortedCountByCategories) {
-        if (recommendationProducts.length >= 10) break;
-
         const productsByCategory = await Product.find({ category });
 
         for (const recommendationProduct of productsByCategory) {
-            if (recommendationProducts.length >= 10) break;
-
             if (productIds.has(recommendationProduct._id + "")) continue;
 
             recommendationProducts.push(recommendationProduct)

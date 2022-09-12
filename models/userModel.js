@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
         default: true,
         select: false
     },
+    // isPrime: {
+    //     type: Boolean,
+    //     default: false
+    // },
     password: {
         type: String,
         required: [true, "Please input your password"],

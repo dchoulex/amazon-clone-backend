@@ -17,6 +17,11 @@ const creditCardSchema = new mongoose.Schema({
             message: "Please input valid credit card type."
         }
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+        select: false
+    },
     expirationDate: {
         type: Date,
         required: [true, "A credit card must have an expiration date."],
@@ -41,7 +46,7 @@ const creditCardSchema = new mongoose.Schema({
 });
 
 creditCardSchema.pre(/^find/, function(next) {
-    this.populate({ path: "user" });
+    this.populate({ path: "user" }).find({ isActive: { $ne : false } });
 
     next();
 });

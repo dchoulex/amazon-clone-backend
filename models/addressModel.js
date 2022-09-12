@@ -46,7 +46,18 @@ const addressSchema = new mongoose.Schema({
         required: [true, "An address must have a name."],
         maxLength: [50, "A name must have at most 50 characters."]
     },
-    isDefault: Boolean
+    isDefault: Boolean,
+    isActive: {
+        type: Boolean,
+        default: true,
+        select: false
+    },
+});
+
+addressSchema.pre(/^find/, function(next) {
+    this.find({ isActive: { $ne : false } });
+
+    next();
 });
 
 const Address = mongoose.model("Address", addressSchema);
