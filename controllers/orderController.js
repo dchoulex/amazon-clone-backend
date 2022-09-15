@@ -4,6 +4,7 @@ const Cart = require("./../models/cartModel");
 const Product = require("./../models/productModel");
 const ShippingCost = require("./../models/shippingCostModel");
 const Address = require("./../models/addressModel");
+const User = require("./../models/userModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
@@ -69,7 +70,8 @@ exports.getAllOrders = catchAsync(async function(req, res) {
 });
 
 async function updateOrderStatus(order) {
-    const timeDifference = CURRENT_TIME - order.orderDate;
+    const currentTime = Date.now();
+    const timeDifference = currentTime - new Date(order.orderDate).getTime();
 
     if (order.isExpedited) {
         switch(true) {
@@ -112,7 +114,7 @@ async function updateOrderStatus(order) {
     await order.save();
 };
 
-exports.orderBack = catchAsync(async function(req, res, next) {
+exports.orderBack = catchAsync(async function(req, res) {
     const userId = req.user._id;
     const orderId = req.params.id;
 
@@ -123,7 +125,8 @@ exports.orderBack = catchAsync(async function(req, res, next) {
         }, 
         {
             status: DELIVERY_STATUS[0],
-            isCanceled: false
+            isCanceled: false,
+            orderDate: CURRENT_TIME
         }
     );
 
@@ -135,7 +138,7 @@ exports.orderBack = catchAsync(async function(req, res, next) {
 
 exports.orderItems = catchAsync(async function(req, res, next) {
     const userId = req.user._id;
-    const { isExpedited, shippingAddress, paymentMethod, creditCard } = req.body;
+    const { isExpedited, shippingAddress, paymentMethod, creditCard, pointUsed } = req.body;
 
     if (!shippingAddress) return next(new AppError(400, "Please input your address."))
 
@@ -174,11 +177,11 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         shippingCost = isExpedited ? shippingCostData.expeditedShippingCost : shippingCostData.standardShippingCost;
     };
 
-    const grandTotal = shippingCost + subTotalAfterTax;
+    const grandTotal = shippingCost + subTotalAfterTax - pointUsed;
 
     if (paymentMethod === "credit" && !creditCard){
         return next(new AppError(400, "Please input your credit card info to continue payment using credit card."));
-    } 
+    };
 
     //Create order
     const orderData = {
@@ -190,25 +193,37 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         isExpedited,
         paymentMethod,
         grandTotal,
-        creditCard
+        creditCard,
+        pointUsed
     };
 
     const newOrder = await Order.create(orderData);
 
-    await createOrderItem(newOrder._id, carts, next);
+    const pointEarned = await createOrderItem(newOrder._id, carts, next);
+
+    const user = await User.findById(userId);
+
+    user.amazonPoints = user.amazonPoints + pointEarned - pointUsed;
+
+    await user.save();
 
     res.status(200).json({
         status: "success",
-        data: newOrder
+        data: newOrder,
+        currentPoint: user.amazonPoints
     });
 });
 
 async function createOrderItem(orderId, carts) {
+    let pointEarned = 0;
+
     for (const cartItem of carts) {
         const priceWhenOrdered = cartItem.product.price;
+        const point = cartItem.product.point;
         const amount = cartItem.amount;
 
         const subTotal = priceWhenOrdered * amount;
+        pointEarned += point * amount
 
         await updateProductInfo(cartItem.product._id, amount);
 
@@ -223,7 +238,9 @@ async function createOrderItem(orderId, carts) {
         await OrderItem.create(orderItemData);
 
         await Cart.findByIdAndDelete(cartItem._id);
-    }
+    };
+
+    return pointEarned;
 };
 
 async function updateProductInfo(productId, amount, next) {

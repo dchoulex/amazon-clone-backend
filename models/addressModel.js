@@ -49,15 +49,8 @@ const addressSchema = new mongoose.Schema({
     isDefault: Boolean,
     isActive: {
         type: Boolean,
-        default: true,
-        select: false
+        default: true
     },
-});
-
-addressSchema.pre(/^find/, function(next) {
-    this.find({ isActive: { $ne : false } });
-
-    next();
 });
 
 const Address = mongoose.model("Address", addressSchema);

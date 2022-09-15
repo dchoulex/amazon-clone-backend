@@ -14,12 +14,7 @@ const reviewSchema = new mongoose.Schema({
     },
     reviewDate: {
         type: Date,
-        default: Date.now(),
-        set: function(reviewDate) {
-            const offset = new Date().getTimezoneOffset() * 60 * 1000;
-
-            return reviewDate - offset
-        }
+        default: Date.now()
     },
     review: {
         type: String,

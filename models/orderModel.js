@@ -43,12 +43,11 @@ const orderSchema = new mongoose.Schema(
         },
         orderDate: {
             type: Date,
-            default: Date.now(),
-            set: function(orderDate) {
-                const offset = new Date().getTimezoneOffset() * 60 * 1000;
-
-                return orderDate - offset
-            }
+            default: Date.now()
+        },
+        pointUsed: {
+            type: Number,
+            default: 0
         },
         shippingAddress: {
             type: mongoose.Schema.ObjectId,

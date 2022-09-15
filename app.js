@@ -19,15 +19,15 @@ const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
 //Cyber security middlewares
-const limiter = rateLimit({
-    windowMs: process.env.RATE_LIMITER_TIME_FRAME * 60 * 1000,
-    max: 100,
-    message: "Too many requests from this IP, please try again later.",
-    standardHeaders: true,
-    legacyHeaders: false
-});
+// const limiter = rateLimit({
+//     windowMs: process.env.RATE_LIMITER_TIME_FRAME * 60 * 1000,
+//     max: 100,
+//     message: "Too many requests from this IP, please try again later.",
+//     standardHeaders: true,
+//     legacyHeaders: false
+// });
 
-app.use(limiter);
+// app.use(limiter);
 app.use(helmet());
 app.use(express.json({ limit: "10kb" }));
 app.use(mongoSanitize());

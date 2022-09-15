@@ -8,6 +8,7 @@ const catchAsync = require("../utils/catchAsync");
 const Address = require("./../models/addressModel");
 const CreditCard = require("./../models/creditCardModel");
 const Cart = require("./../models/cartModel");
+const { CURRENT_TIME } = require("../appConfig");
 
 exports.signUp = catchAsync(async function(req, res) {
     const { name, email, password } = req.body;
@@ -47,13 +48,20 @@ exports.login = catchAsync(async function(req, res, next) {
         isDefault: true
     });
 
-    const carts = await Cart.find({ user: userId});
+    const cartItems = await Cart.find({
+        user: userId,
+        isSaved: false
+    });
+
+    const totalAmount = cartItems.reduce((totalAmount, cartItem) => {
+        totalAmount + cartItem.amount
+    }, 0);
     
     const jsonData = {
         user,
         defaultAddress,
         defaultCreditCard,
-        numOfCartItems: carts.numOfResults
+        totalAmount
     };
 
     const cookieOptions = {
@@ -73,6 +81,15 @@ exports.login = catchAsync(async function(req, res, next) {
     });
 });
 
+exports.signout = (_, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(CURRENT_TIME + 1 * 1000),
+        httpOnly: true
+    });
+
+    res.status(200).json({ status: 'success' });
+};
+
 exports.forgotPassword = catchAsync(async function(req, res, next) {
     const { email } = req.body;
 
@@ -85,7 +102,12 @@ exports.forgotPassword = catchAsync(async function(req, res, next) {
     await user.save();
     
     try {
-        const message = `To authenticate, please use the following One Time Password (OTP): \n${OTP} \nDon't share this OTP with anyone. Our customer service team will never ask you for your password, OTP, credit card, or banking info.\n\nWe hope to see you again soon.`
+        const message = `
+            To authenticate, please use the following One Time Password (OTP): ${OTP}.
+            This password will expire in 2 minutes.
+            Don't share this OTP with anyone. Our customer service team will never ask you for your password, OTP, credit card, or banking info.
+            We hope to see you again soon.
+        `
 
         await sendEmail({
             email: user.email,
@@ -110,8 +132,25 @@ exports.forgotPassword = catchAsync(async function(req, res, next) {
 exports.verifyOTP = catchAsync(async function(req, res, next) {
     const { OTP } = req.body;
 
-    const offset = new Date().getTimezoneOffset() * 60 * 1000;
-    const currentTime = Date.now() - offset;
+    const currentTime = Date.now();
+
+    const user = await User.findOne({ 
+        OTP,
+        OTPExpires: { $gt: currentTime }
+    }).select("+password");
+
+    if (!user) return next(new AppError(400, "One Time Password (OTP) is invalid or has expired."));
+
+    res.status(200).json({
+        status: "success",
+        message: "Successfully validate One Time Password (OTP)."
+    })
+});
+
+exports.verifyOTP = catchAsync(async function(req, res, next) {
+    const { OTP } = req.body;
+
+    const currentTime = Date.now();
 
     const user = await User.findOne({ 
         OTP,
@@ -239,13 +278,18 @@ exports.authenticate = catchAsync(async function(req, res) {
             isDefault: true
         });
 
-        const carts = await Cart.find({ user: userId});
+        const carts = await Cart.find({
+            user: userId,
+            isSaved: false
+        });
+
+        const totalAmount = carts.reduce((totalAmount, cart) => totalAmount + cart.amount, 0);
 
         jsonData.isAuthenticated = true;  
         jsonData.user = currentUser;
         jsonData.defaultAddress = defaultAddress;
         jsonData.defaultCreditCard = defaultCreditCard;
-        jsonData.numOfCartItems = carts.length;
+        jsonData.totalAmount = totalAmount;
     };
 
     res.status(200).json({

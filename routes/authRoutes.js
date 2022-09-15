@@ -12,5 +12,6 @@ router.patch("/resetPassword", authController.resetPassword);
 
 router.use(authController.protect);
 router.patch("/changePassword", authController.changePassword);
+router.get("/signout", authController.signout);
 
 module.exports = router;

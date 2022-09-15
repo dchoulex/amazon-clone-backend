@@ -5,9 +5,22 @@ const factory = require("./handlerFactory");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
-exports.getAllMyReviews = factory.getAll(Review);
 exports.getReviewDetails = factory.getOne(Review);
 exports.deleteReview = factory.deleteOne(Review);
+
+exports.getAllMyReviews = catchAsync(async function(req, res) {
+    const reviews = await Review.find({ 
+        user: req.user._id
+    });
+
+    const jsonData = {
+        status: "success",
+        numOfResults: reviews.length,
+        data: reviews
+    };
+
+    res.status(200).json(jsonData);
+});
 
 exports.getReviewableProducts = catchAsync(async function(req, res, next) {
     const userId = req.user._id;

@@ -4,9 +4,23 @@ const AppError = require("../utils/appError");
 
 const CreditCard = require("../models/creditCardModel");
 
-exports.getAllCreditCards = factory.getAll(CreditCard);
 exports.deleteCreditCard = factory.deleteOne(CreditCard);
 exports.updateCreditCard = factory.updateOne(CreditCard);
+
+exports.getAllCreditCards = catchAsync(async function(req, res) {
+    const creditCards = await CreditCard.find({ 
+        user: req.user._id,
+        isActive: { $ne: false }
+    });
+
+    const jsonData = {
+        status: "success",
+        numOfResults: creditCards.length,
+        data: creditCards
+    };
+
+    res.status(200).json(jsonData);
+});
 
 exports.deleteCreditCard = catchAsync(async function(req, res) {
     const userId = req.user._id;

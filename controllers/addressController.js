@@ -4,8 +4,22 @@ const AppError = require("./../utils/appError");
 
 const Address = require("./../models/addressModel");
 
-exports.getAllAddresses = factory.getAll(Address);
 exports.updateAddress = factory.updateOne(Address);
+
+exports.getAllAddresses = catchAsync(async function(req, res) {
+    const addresses = await Address.find({ 
+        user: req.user._id,
+        isActive: { $ne: false }
+    });
+
+    const jsonData = {
+        status: "success",
+        numOfResults: addresses.length,
+        data: addresses
+    };
+
+    res.status(200).json(jsonData);
+});
 
 exports.deleteAddress = catchAsync(async function(req, res) {
     const userId = req.user._id;
@@ -25,7 +39,8 @@ exports.deleteAddress = catchAsync(async function(req, res) {
 exports.getDefaultAddress = catchAsync(async function(req, res, next) {
     const defaultAddress = await Address.findOne({
         user: req.user._id,
-        isDefault: true
+        isDefault: true,
+        isActive: { $ne: false }
     });
 
     if (!defaultAddress) return next(new AppError(400, "No default address found. Please set a default address."));
@@ -87,7 +102,8 @@ exports.setAddressAsDefault = catchAsync(async function(req, res, next) {
 
     const address = await Address.findOne({
         _id,
-        user: userId
+        user: userId,
+        isActive: { $ne: false }
     });
 
     if (!address) return next(new AppError(400, "No data found."));

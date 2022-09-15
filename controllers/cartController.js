@@ -4,31 +4,41 @@ const AppError = require("./../utils/appError");
 
 const Cart = require("./../models/cartModel");
 
-exports.deleteCartItem = factory.deleteOne(Cart);
+exports.deleteCartItem = catchAsync(async function(req, res, next) {
+    const _id = req.params.id;
+    const userId = req.user._id;
+
+    const document = await Cart.findOneAndDelete({
+        _id,
+        user: userId
+    });
+
+    if (!document) return next(new AppError(400, "No data found"));
+    
+    const newCartItems = await Cart.find({ 
+        user: userId,
+        isSaved: false
+    });
+
+    const totalAmount = newCartItems.reduce((totalAmount, cartItem) => totalAmount + cartItem.amount, 0);
+
+    res.status(200).json({
+        status: "success",
+        totalAmount
+    })
+});
+
 exports.updateCartItem = factory.updateOne(Cart);
 
 exports.getAllCartItems = catchAsync(async function(req, res) {
-    // const isSaved = req.query.isSaved === "true";
-
-    // const carts = await Cart.find({ 
-    //     user: req.user._id,
-    //     isSaved
-    // }).populate({ path: "product" });
-
     const carts = await Cart.find({
         user: req.user._id
     }).populate({ path: "product" });
 
     const jsonData = {
-        status: "success"
-    };
-
-    if (carts.length === 0) {
-        jsonData.message = "No data available yet.";
-        jsonData.data = [];
-    } else {
-        jsonData.numOfResults = carts.length;
-        jsonData.data = carts;
+        status: "success",
+        data: carts,
+        numOfResults: carts.length
     };
 
     res.status(200).json(jsonData)
@@ -75,12 +85,21 @@ exports.addCartItem = catchAsync(async function(req, res, next) {
         jsonData.message = "Successfully add item to cart";
     };
 
+    const newCartItems = await Cart.find({ 
+        user: userId,
+        isSaved: false
+    });
+
+    const totalAmount = newCartItems.reduce((totalAmount, cartItem) => totalAmount + cartItem.amount, 0);
+
+    jsonData.totalAmount = totalAmount;
     jsonData.data = newCartItem;
 
     res.status(200).json(jsonData);
 });
 
 exports.toggleSaveCartItem = catchAsync(async function(req, res, next) {
+    const userId = req.user._id;
     const cartId = req.params.id;
     const isSaved = req.query.isSaved === "true";
     
@@ -94,9 +113,17 @@ exports.toggleSaveCartItem = catchAsync(async function(req, res, next) {
         new: true
     });
 
+    const newAllCartItems = await Cart.find({
+        user: userId,
+        isSaved: false
+    });
+
+    const totalAmount = newAllCartItems.reduce((totalAmount, cartItem) => totalAmount + cartItem.amount, 0);
+
     res.status(200).json({
         message: "success",
-        data: newCartItem
+        data: newCartItem,
+        totalAmount
     });
 });
 

@@ -19,8 +19,7 @@ const creditCardSchema = new mongoose.Schema({
     },
     isActive: {
         type: Boolean,
-        default: true,
-        select: false
+        default: true
     },
     expirationDate: {
         type: Date,
@@ -43,12 +42,6 @@ const creditCardSchema = new mongoose.Schema({
         required: [true, "A credit card must have a name."],
         maxLength: [50, "Please input less than 50 characters."]
     }
-});
-
-creditCardSchema.pre(/^find/, function(next) {
-    this.populate({ path: "user" }).find({ isActive: { $ne : false } });
-
-    next();
 });
 
 const CreditCard = mongoose.model("CreditCard", creditCardSchema);
