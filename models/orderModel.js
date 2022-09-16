@@ -41,10 +41,7 @@ const orderSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: "CreditCard"
         },
-        orderDate: {
-            type: Date,
-            default: Date.now()
-        },
+        orderDate: Date,
         pointUsed: {
             type: Number,
             default: 0

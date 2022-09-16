@@ -4,6 +4,10 @@ const mongoose = require("mongoose");
 const Cart = require("../models/cartModel");
 const Order = require("../models/orderModel");
 const OrderItem = require("../models/orderItemModel");
+const Address = require("../models/addressModel");
+const CreditCard = require("../models/creditCardModel");
+const Review = require("../models/reviewModel");
+const User = require("../models/userModel");
 
 const envFilePath = path.resolve(__dirname, "..", "config.env");
 dotenv.config({ path: envFilePath });
@@ -19,6 +23,9 @@ async function deleteData() {
         await Cart.deleteMany();
         await Order.deleteMany();
         await OrderItem.deleteMany();
+        await Address.deleteMany();
+        await CreditCard.deleteMany();
+        await Review.deleteMany();
     } catch(err) {
         console.log(err)
     };

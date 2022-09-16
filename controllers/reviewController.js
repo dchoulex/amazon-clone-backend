@@ -1,6 +1,9 @@
+const mongoose = require("mongoose");
+
 const Review = require("./../models/reviewModel");
 const Order = require("./../models/orderModel");
 const OrderItem = require("./../models/orderItemModel");
+const Product = require("./../models/productModel");
 const factory = require("./handlerFactory");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
@@ -75,6 +78,25 @@ exports.updateReview = catchAsync(async function(req, res, next) {
     });
 
     if (!newReview) return next(new AppError(400, "No data found."));
+
+    const stats = await Review.aggregate([
+        {
+            $match: { product: mongoose.Types.ObjectId(productId) }
+        }, {
+            $group: {
+                _id: "$product",
+                numberOfRatings: { $sum: 1 },
+                ratingsAverage: { $avg: "$rating" }
+            }
+        }
+    ]);
+    
+    if (stats.length !== 0) {
+        await Product.findByIdAndUpdate(productId, {
+            ratingsQuantity: stats[0].numberOfRatings,
+            ratingsAverage: stats[0].ratingsAverage
+        }) 
+    };
 
     res.status(200).json({
         status: "success",

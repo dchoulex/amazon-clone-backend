@@ -8,7 +8,7 @@ const User = require("./../models/userModel");
 
 const AppError = require("./../utils/appError");
 const catchAsync = require("./../utils/catchAsync");
-const { TAX, DELIVERY_STATUS, CURRENT_TIME } = require("../appConfig");
+const { TAX, DELIVERY_STATUS } = require("../appConfig");
 
 exports.getOrderDetails = catchAsync(async function(req, res) {
     const userId = req.user._id;
@@ -47,10 +47,6 @@ exports.getAllOrders = catchAsync(async function(req, res) {
         data: []
     };
 
-    if (orders.length === 0) {
-        jsonData.message = "No data available yet.";
-    };
-
     for (const order of orders) {
         await updateOrderStatus(order);
     };
@@ -70,8 +66,7 @@ exports.getAllOrders = catchAsync(async function(req, res) {
 });
 
 async function updateOrderStatus(order) {
-    const currentTime = Date.now();
-    const timeDifference = currentTime - new Date(order.orderDate).getTime();
+    const timeDifference = Date.now() - new Date(order.orderDate).getTime();
 
     if (order.isExpedited) {
         switch(true) {
@@ -97,6 +92,7 @@ async function updateOrderStatus(order) {
             case timeDifference < 5 * 60 * 1000:
                 order.status = DELIVERY_STATUS[0];
                 break;
+
             case timeDifference < 10 * 60 * 1000:
                 order.status = DELIVERY_STATUS[1];
                 break;
@@ -126,7 +122,7 @@ exports.orderBack = catchAsync(async function(req, res) {
         {
             status: DELIVERY_STATUS[0],
             isCanceled: false,
-            orderDate: CURRENT_TIME
+            orderDate: Date.now()
         }
     );
 
@@ -194,7 +190,8 @@ exports.orderItems = catchAsync(async function(req, res, next) {
         paymentMethod,
         grandTotal,
         creditCard,
-        pointUsed
+        pointUsed,
+        orderDate: Date.now()
     };
 
     const newOrder = await Order.create(orderData);

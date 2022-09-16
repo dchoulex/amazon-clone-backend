@@ -62,7 +62,9 @@ reviewSchema.post("save", function() {
 });
 
 reviewSchema.pre(/^find/, async function(next) {
-    this.populate({ path: "product" })
+    this.populate({ path: "product" });
+
+    next();
 });
 
 reviewSchema.pre(/^findOneAnd/, async function(next) {
