@@ -10,16 +10,14 @@ const AppError = require("./../utils/appError");
 
 exports.getReviewDetails = factory.getOne(Review);
 
-exports.deleteReview = catchAsync(async function(req, res, next) {
+exports.deleteReview = catchAsync(async function(req, res) {
     const { productId, id } = req.params;
     const userId = req.user._id;
 
-    const review = await Review.findOneAndDelete({
+    await Review.findOneAndDelete({
         _id: id,
         user: userId
     });
-
-    if (!review) return next(new AppError(400, "No data found."));
 
     const stats = await Review.aggregate([
         {
@@ -41,8 +39,7 @@ exports.deleteReview = catchAsync(async function(req, res, next) {
     };
 
     res.status(200).json({
-        status: "success",
-        data: newReview
+        status: "success"
     });
 });
 
