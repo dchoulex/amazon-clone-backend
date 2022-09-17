@@ -86,7 +86,7 @@ exports.getAllProducts = catchAsync(async function(_, res) {
 });
 
 exports.getBestReviewProducts = catchAsync(async function(_, res) {
-    const products = await Product.find().sort("-ratingsQuantity").limit(10);
+    const products = await Product.find().sort("-ratingsAverage").limit(10);
 
     res.status(200).json({
         status: "success",
