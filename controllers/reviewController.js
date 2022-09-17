@@ -9,7 +9,42 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 
 exports.getReviewDetails = factory.getOne(Review);
-exports.deleteReview = factory.deleteOne(Review);
+
+exports.deleteReview = catchAsync(async function(req, res, next) {
+    const { productId, id } = req.params;
+    const userId = req.user._id;
+
+    const review = await Review.findOneAndDelete({
+        _id: id,
+        user: userId
+    });
+
+    if (!review) return next(new AppError(400, "No data found."));
+
+    const stats = await Review.aggregate([
+        {
+            $match: { product: mongoose.Types.ObjectId(productId) }
+        }, {
+            $group: {
+                _id: "$product",
+                numberOfRatings: { $sum: 1 },
+                ratingsAverage: { $avg: "$rating" }
+            }
+        }
+    ]);
+    
+    if (stats.length !== 0) {
+        await Product.findByIdAndUpdate(productId, {
+            ratingsQuantity: stats[0].numberOfRatings,
+            ratingsAverage: stats[0].ratingsAverage
+        }) 
+    };
+
+    res.status(200).json({
+        status: "success",
+        data: newReview
+    });
+});
 
 exports.getAllMyReviews = catchAsync(async function(req, res) {
     const reviews = await Review.find({ 
