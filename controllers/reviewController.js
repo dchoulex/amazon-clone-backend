@@ -14,10 +14,12 @@ exports.deleteReview = catchAsync(async function(req, res) {
     const { productId, id } = req.params;
     const userId = req.user._id;
 
-    await Review.findOneAndDelete({
+    const review = await Review.findOneAndDelete({
         _id: id,
         user: userId
     });
+
+    if (!review) return next(new AppError(400, "No data found"));
 
     const stats = await Review.aggregate([
         {
@@ -35,6 +37,11 @@ exports.deleteReview = catchAsync(async function(req, res) {
         await Product.findByIdAndUpdate(productId, {
             ratingsQuantity: stats[0].numberOfRatings,
             ratingsAverage: stats[0].ratingsAverage
+        }) 
+    } else {
+        await Product.findByIdAndUpdate(productId, {
+            ratingsQuantity: 0,
+            ratingsAverage: 0
         }) 
     };
 
