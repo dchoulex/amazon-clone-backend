@@ -36,8 +36,8 @@ app.use(hpp());
 
 app.use(
     cors({
-        origin: ["https://amazon-clone-frontend-alpha.vercel.app"],
-        methods: ["GET", "PUT", "POST", "DELETE"],
+        origin: "*",
+        methods: ["GET", "PUT", "POST"],
         allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"],
         credentials: true
     })
