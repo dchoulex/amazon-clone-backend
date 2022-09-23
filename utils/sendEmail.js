@@ -12,7 +12,7 @@ const sendEmail = async function(userEmail) {
     });
 
     const mailOptions = {
-        from: "Amazon Clone <foo@email.com>",
+        from: "Amazon Clone <foo@gmail.com>",
         to: userEmail.email,
         subject: userEmail.subject,
         text: userEmail.message

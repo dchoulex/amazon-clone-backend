@@ -4,6 +4,8 @@
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 ![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)
 
+Technology used: Node.js, Express, MongoDB, Mongoose, JWT, Heroku.
+
 <h1 align="center"> Amazon Clone Backend </h1>
 
 This repository represents backend side of my amazon clone project. You can read API documentation from the link below.
@@ -13,8 +15,6 @@ https://documenter.getpostman.com/view/18687061/2s7YmxgitW
 The backend API host on the link below.
 
 https://amazon-clone-backend-dac.herokuapp.com/
-
-Technology used: Node.JS, Express, MongoDB, Mongoose, JWT, Heroku.
 
 ## ER Diagram
 

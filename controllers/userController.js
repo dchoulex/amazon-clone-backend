@@ -27,7 +27,7 @@ exports.deleteAccount = catchAsync(async function(req, res, next) {
     await User.findByIdAndUpdate(user._id, { isActive: false });
 
     res.cookie('jwt', 'loggedout', {
-        expires: new Date(CURRENT_TIME + 1 * 1000),
+        expires: new Date(Date.now() + 1 * 1000),
         httpOnly: true
     });
 

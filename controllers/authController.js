@@ -8,10 +8,13 @@ const catchAsync = require("../utils/catchAsync");
 const Address = require("./../models/addressModel");
 const CreditCard = require("./../models/creditCardModel");
 const Cart = require("./../models/cartModel");
-const { CURRENT_TIME } = require("../appConfig");
 
-exports.signUp = catchAsync(async function(req, res) {
+exports.signUp = catchAsync(async function(req, res, next) {
     const { name, email, password } = req.body;
+
+    const userExist = await User.findOne({ email });
+
+    if (userExist) next(new AppError(400, "User already exist. Please use another email."));
 
     const newUser = await User.create({
         name,
@@ -83,7 +86,7 @@ exports.login = catchAsync(async function(req, res, next) {
 
 exports.signout = (_, res) => {
     res.cookie('jwt', 'loggedout', {
-        expires: new Date(CURRENT_TIME + 1 * 1000),
+        expires: new Date(Date.now() + 1 * 1000),
         httpOnly: true
     });
 
