@@ -12,10 +12,6 @@ This repository represents backend side of my amazon clone project. You can read
 
 https://documenter.getpostman.com/view/18687061/2s7YmxgitW
 
-The backend API host on the link below.
-
-https://amazon-clone-backend-dac.herokuapp.com/
-
 ## ER Diagram
 
 <img src="./readme_assets/er-diagram.svg" width="100%">
